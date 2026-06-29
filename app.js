@@ -27,6 +27,8 @@ const logoutBtn = document.getElementById('logoutBtn');
 const myOrdersNavBtn = document.getElementById('myOrdersNavBtn');
 const myOrdersModal = document.getElementById('myOrdersModal');
 const floatingChatBtn = document.getElementById('floatingChatBtn');
+const chatPopupWidget = document.getElementById('chatPopupWidget');
+const closeChatPopupBtn = document.getElementById('closeChatPopupBtn');
 
 // Product Detail & Interactive Media Gallery Elements (Photos & Videos)
 const productDetailModal = document.getElementById('productDetailModal');
@@ -275,12 +277,16 @@ function setupEventListeners() {
     });
   }
 
-  // Floating Live Chat Button Handler
-  if (floatingChatBtn) {
+  // Floating Live Chat Popup Toggle Handlers
+  if (floatingChatBtn && chatPopupWidget) {
     floatingChatBtn.addEventListener('click', () => {
-      const adminPhone = '6281234567890';
-      const defaultMsg = encodeURIComponent('Halo Admin JastipKampus! 👋 Saya ingin menanyakan informasi tentang pesanan/titipan barang saya.');
-      window.open(`https://wa.me/${adminPhone}?text=${defaultMsg}`, '_blank');
+      chatPopupWidget.classList.toggle('active');
+    });
+  }
+
+  if (closeChatPopupBtn && chatPopupWidget) {
+    closeChatPopupBtn.addEventListener('click', () => {
+      chatPopupWidget.classList.remove('active');
     });
   }
 
@@ -415,11 +421,9 @@ function setupEventListeners() {
         return;
       }
 
-      // Update password in memory and localStorage
       registeredUsers[userIndex].password = newPass;
       localStorage.setItem('jastip_registered_users', JSON.stringify(registeredUsers));
 
-      // If currentUser is resetting their own password, update currentUser as well
       if (currentUser && currentUser.email === email) {
         currentUser.password = newPass;
         localStorage.setItem('jastip_current_user', JSON.stringify(currentUser));
@@ -427,7 +431,6 @@ function setupEventListeners() {
 
       alert(`🎉 Kata Sandi Berhasil Diperbarui!\n\nKata sandi akun (${email}) telah diubah. Silakan masuk dengan kata sandi baru Anda.`);
       
-      // Clear inputs and switch to login view
       document.getElementById('forgotNewPassword').value = '';
       document.getElementById('forgotConfirmPassword').value = '';
       document.getElementById('loginEmail').value = email;
@@ -448,6 +451,13 @@ function setupEventListeners() {
     myOrdersNavBtn.addEventListener('click', renderMyOrders);
   }
 }
+
+window.openWaTopic = function(topicText) {
+  const adminPhone = '6281234567890';
+  const msg = encodeURIComponent(`Halo Admin CS JastipKampus! 👋%0ASaya ingin menanyakan perihal: *${topicText}*.%0A%0AMohon bantuannya ya Min, terima kasih! 🙏`);
+  if (chatPopupWidget) chatPopupWidget.classList.remove('active');
+  window.open(`https://wa.me/${adminPhone}?text=${msg}`, '_blank');
+};
 
 function showAuthView(view) {
   loginForm.style.display = 'none';

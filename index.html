@@ -275,7 +275,45 @@
     </div>
   </div>
 
-  <!-- Floating Live Chat Admin WhatsApp Button -->
+  <!-- Ultra-Attractive Live Chat Admin Widget Popup Card -->
+  <div class="chat-popup-widget" id="chatPopupWidget">
+    <div class="chat-popup-header">
+      <div class="chat-admin-info">
+        <div class="chat-admin-avatar-wrapper">
+          <img src="logo.jpg" alt="Admin CS" class="chat-admin-avatar">
+          <span class="chat-online-badge"></span>
+        </div>
+        <div>
+          <h4 style="font-size: 0.95rem; font-weight: 800; color: white;">CS JastipKampus</h4>
+          <span style="font-size: 0.75rem; color: #4ade80; font-weight: 600;">🟢 Online (Fast Response)</span>
+        </div>
+      </div>
+      <button id="closeChatPopupBtn" style="background: transparent; border: none; color: #94a3b8; font-size: 1.3rem; cursor: pointer;">&times;</button>
+    </div>
+
+    <div class="chat-popup-body">
+      <div class="chat-bubble-admin">
+        Halo Ka! 👋 Ada yang bisa kami bantu seputar pesanan atau titipan barangmu hari ini? Pilih topik di bawah ya:
+      </div>
+
+      <div class="chat-quick-options">
+        <button class="chat-option-btn" onclick="openWaTopic('🚚 Cek Status Pengiriman Pesanan')">
+          <span>🚚</span> Cek Status Pengiriman Pesanan
+        </button>
+        <button class="chat-option-btn" onclick="openWaTopic('🍕 Tanya Stok Makanan Kekinian')">
+          <span>🍕</span> Tanya Stok Makanan Kekinian
+        </button>
+        <button class="chat-option-btn" onclick="openWaTopic('📚 Tanya Buku & Alat Praktikum Lab')">
+          <span>📚</span> Tanya Buku & Alat Praktikum
+        </button>
+        <button class="chat-option-btn" onclick="openWaTopic('💬 Chat Langsung dengan Admin CS')" style="background: #25d366; color: white; border: none; justify-content: center;">
+          <span>💬</span> Chat Langsung via WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Live Chat Admin WhatsApp Trigger Button -->
   <div class="floating-chat-btn" id="floatingChatBtn" title="Tanya Admin tentang Pesanan">
     <span style="font-size: 1.2rem;">💬</span> Chat Admin
   </div>
