@@ -1,4 +1,4 @@
-// Storefront Logic, Realtime Cloud Sync, Product Gallery & User Auth System
+// Storefront Logic, Realtime Cloud Sync, Product Gallery (Photos & Videos) & User Auth System
 let products = JSON.parse(localStorage.getItem('jastip_products')) || INITIAL_PRODUCTS;
 let orders = JSON.parse(localStorage.getItem('jastip_orders')) || INITIAL_ORDERS;
 let registeredUsers = JSON.parse(localStorage.getItem('jastip_registered_users')) || [
@@ -27,9 +27,9 @@ const logoutBtn = document.getElementById('logoutBtn');
 const myOrdersNavBtn = document.getElementById('myOrdersNavBtn');
 const myOrdersModal = document.getElementById('myOrdersModal');
 
-// Product Detail & Gallery Modal Elements
+// Product Detail & Interactive Media Gallery Elements (Photos & Videos)
 const productDetailModal = document.getElementById('productDetailModal');
-const detailMainImage = document.getElementById('detailMainImage');
+const detailMediaViewer = document.getElementById('detailMediaViewer');
 const galleryThumbnailsWrapper = document.getElementById('galleryThumbnailsWrapper');
 const detailProductTitle = document.getElementById('detailProductTitle');
 const detailProductDesc = document.getElementById('detailProductDesc');
@@ -84,6 +84,7 @@ function initRealtimeCloudSync() {
   }
 }
 
+// Clean Card Rendering (Description hidden on cards for ultra-neat consistent alignment!)
 function renderProducts() {
   if (!productsGrid) return;
   productsGrid.innerHTML = '';
@@ -113,16 +114,18 @@ function renderProducts() {
     const tagClass = isMakanan ? 'tag-makanan' : 'tag-peralatan';
     const tagText = isMakanan ? '🍕 Makanan' : '📚 Peralatan';
 
+    const hasVideo = p.media_items && p.media_items.some(m => m.type === 'video');
+
     const card = document.createElement('div');
     card.className = 'product-card';
     card.innerHTML = `
       <div class="product-img-wrapper" onclick="openProductDetailModal('${p.id}')" style="cursor: pointer;">
         <img src="${p.image_url}" alt="${p.title}" class="product-img">
         <span class="category-tag ${tagClass}">${tagText}</span>
+        ${hasVideo ? '<span style="position: absolute; bottom: 12px; right: 12px; background: rgba(15,23,42,0.85); color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; backdrop-filter: blur(8px);">🎬 Video Ada</span>' : ''}
       </div>
       <div class="product-content">
-        <h3 class="product-title" onclick="openProductDetailModal('${p.id}')" style="cursor: pointer;">${p.title}</h3>
-        <p class="product-desc">${p.description}</p>
+        <h3 class="product-title" onclick="openProductDetailModal('${p.id}')" style="cursor: pointer; margin-bottom: 1rem;">${p.title}</h3>
         
         <div class="price-card">
           <div class="price-item">
@@ -139,11 +142,11 @@ function renderProducts() {
           </div>
         </div>
 
-        <div style="display: flex; gap: 0.6rem;">
-          <button class="btn btn-secondary" style="flex: 1; justify-content: center; padding: 0.75rem; font-size: 0.88rem;" onclick="openProductDetailModal('${p.id}')">
-            🔍 Detail & Foto
+        <div style="display: flex; gap: 0.6rem; margin-top: auto;">
+          <button class="btn btn-secondary" style="flex: 1; justify-content: center; padding: 0.75rem; font-size: 0.84rem;" onclick="openProductDetailModal('${p.id}')">
+            🔍 Detail & Media
           </button>
-          <button class="btn btn-primary" style="flex: 1.2; justify-content: center; padding: 0.75rem; font-size: 0.88rem;" onclick="openOrderModal('${p.id}')">
+          <button class="btn btn-primary" style="flex: 1.2; justify-content: center; padding: 0.75rem; font-size: 0.84rem;" onclick="openOrderModal('${p.id}')">
             🛒 Titip Barang
           </button>
         </div>
@@ -151,6 +154,28 @@ function renderProducts() {
     `;
     productsGrid.appendChild(card);
   });
+}
+
+function renderMediaInViewer(mediaItem) {
+  if (!detailMediaViewer) return;
+  detailMediaViewer.innerHTML = '';
+
+  if (mediaItem.type === 'video') {
+    const videoElem = document.createElement('video');
+    videoElem.src = mediaItem.url;
+    videoElem.controls = true;
+    videoElem.autoplay = true;
+    videoElem.loop = true;
+    videoElem.muted = true;
+    videoElem.style.cssText = 'width: 100%; height: 100%; object-fit: contain; background: #000000;';
+    detailMediaViewer.appendChild(videoElem);
+  } else {
+    const imgElem = document.createElement('img');
+    imgElem.src = mediaItem.url;
+    imgElem.alt = 'Foto Produk';
+    imgElem.style.cssText = 'width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;';
+    detailMediaViewer.appendChild(imgElem);
+  }
 }
 
 window.openProductDetailModal = function(id) {
@@ -173,22 +198,33 @@ window.openProductDetailModal = function(id) {
   detailJastipFee.textContent = `+ ${formatRupiah(prod.jastip_fee)}`;
   detailGrandTotal.textContent = formatRupiah(prod.price_original + prod.jastip_fee);
 
-  // Setup Gallery Images
-  const gallery = prod.gallery_images && prod.gallery_images.length > 0 ? prod.gallery_images : [prod.image_url];
-  detailMainImage.src = gallery[0];
+  // Setup Media Items (Photos & Videos)
+  let mediaList = prod.media_items && prod.media_items.length > 0 ? prod.media_items : [{ type: 'image', url: prod.image_url }];
+  
+  // Render active main media (First item)
+  renderMediaInViewer(mediaList[0]);
 
   galleryThumbnailsWrapper.innerHTML = '';
-  gallery.forEach((imgSrc, idx) => {
-    const thumb = document.createElement('img');
-    thumb.src = imgSrc;
-    thumb.alt = `Foto ${idx + 1}`;
-    thumb.style.cssText = `width: 68px; height: 68px; object-fit: cover; border-radius: 12px; cursor: pointer; border: 2px solid ${idx === 0 ? '#4f46e5' : '#e2e8f0'}; transition: all 0.2s ease;`;
-    thumb.addEventListener('click', () => {
-      detailMainImage.src = imgSrc;
+  mediaList.forEach((item, idx) => {
+    const thumbBox = document.createElement('div');
+    thumbBox.style.cssText = `position: relative; width: 72px; height: 72px; flex-shrink: 0; border-radius: 14px; overflow: hidden; cursor: pointer; border: 3px solid ${idx === 0 ? '#4f46e5' : '#e2e8f0'}; transition: all 0.2s ease; background: #f1f5f9;`;
+    
+    if (item.type === 'video') {
+      thumbBox.innerHTML = `
+        <video src="${item.url}" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;"></video>
+        <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(79,70,229,0.9); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">▶</span>
+      `;
+    } else {
+      thumbBox.innerHTML = `<img src="${item.url}" alt="Foto ${idx+1}" style="width: 100%; height: 100%; object-fit: cover;">`;
+    }
+
+    thumbBox.addEventListener('click', () => {
+      renderMediaInViewer(item);
       Array.from(galleryThumbnailsWrapper.children).forEach(c => c.style.borderColor = '#e2e8f0');
-      thumb.style.borderColor = '#4f46e5';
+      thumbBox.style.borderColor = '#4f46e5';
     });
-    galleryThumbnailsWrapper.appendChild(thumb);
+
+    galleryThumbnailsWrapper.appendChild(thumbBox);
   });
 
   openModal(productDetailModal);

@@ -15,10 +15,10 @@ const INITIAL_PRODUCTS = [
     jastip_fee: 7000,
     stock: 15,
     image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
-    gallery_images: [
-      'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?auto=format&fit=crop&w=800&q=80'
+    media_items: [
+      { type: 'image', url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80' },
+      { type: 'video', url: 'https://assets.mixkit.co/videos/preview/mixkit-top-view-of-a-person-preparing-a-dish-41529-large.mp4' },
+      { type: 'image', url: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80' }
     ],
     weight: '300 Gram',
     expiry_shelf_life: '12 Bulan (Kemasan Kaleng Hampa Udara)',
@@ -34,9 +34,10 @@ const INITIAL_PRODUCTS = [
     jastip_fee: 7000,
     stock: 20,
     image_url: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80',
-    gallery_images: [
-      'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=800&q=80'
+    media_items: [
+      { type: 'image', url: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80' },
+      { type: 'video', url: 'https://assets.mixkit.co/videos/preview/mixkit-close-up-of-delicious-freshly-baked-bread-43093-large.mp4' },
+      { type: 'image', url: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=800&q=80' }
     ],
     weight: '500 Gram (Isi 10 Pcs)',
     expiry_shelf_life: '7 Hari Suhu Ruang / 14 Hari di Kulkas',
@@ -52,9 +53,9 @@ const INITIAL_PRODUCTS = [
     jastip_fee: 10000,
     stock: 8,
     image_url: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=800&q=80',
-    gallery_images: [
-      'https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80'
+    media_items: [
+      { type: 'image', url: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=800&q=80' },
+      { type: 'video', url: 'https://assets.mixkit.co/videos/preview/mixkit-pouring-iced-coffee-into-a-glass-41530-large.mp4' }
     ],
     weight: '1.000 ml (1 Liter)',
     expiry_shelf_life: '3 Hari Dalam Lemari Es',
@@ -70,9 +71,9 @@ const INITIAL_PRODUCTS = [
     jastip_fee: 15000,
     stock: 5,
     image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
-    gallery_images: [
-      'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80'
+    media_items: [
+      { type: 'image', url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80' },
+      { type: 'image', url: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80' }
     ],
     weight: '1.200 Gram (Hardcover)',
     expiry_shelf_life: 'Garansi Cetakan Original Kertas HVS',
@@ -88,9 +89,9 @@ const INITIAL_PRODUCTS = [
     jastip_fee: 20000,
     stock: 3,
     image_url: 'https://images.unsplash.com/photo-1585336261026-875a60a1c92f?auto=format&fit=crop&w=800&q=80',
-    gallery_images: [
-      'https://images.unsplash.com/photo-1585336261026-875a60a1c92f?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=800&q=80'
+    media_items: [
+      { type: 'image', url: 'https://images.unsplash.com/photo-1585336261026-875a60a1c92f?auto=format&fit=crop&w=800&q=80' },
+      { type: 'image', url: 'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=800&q=80' }
     ],
     weight: '450 Gram (Box Set Stainless)',
     expiry_shelf_life: 'Tahan Lama & Anti Karat',

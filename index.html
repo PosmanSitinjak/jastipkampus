@@ -67,7 +67,7 @@
     </div>
   </main>
 
-  <!-- Product Detail & Interactive Gallery Modal -->
+  <!-- Product Detail & Interactive Media Gallery Modal (Foto & Video) -->
   <div class="modal-overlay" id="productDetailModal">
     <div class="modal-content" style="max-width: 680px;">
       <div class="modal-header">
@@ -77,19 +77,20 @@
 
       <div style="display: flex; flex-direction: column; gap: 1.5rem;">
         
-        <!-- Interactive Main Image Preview -->
-        <div style="width: 100%; height: 280px; border-radius: 18px; overflow: hidden; background: #f1f5f9; position: relative; border: 1px solid #e2e8f0;">
-          <img id="detailMainImage" src="" alt="Detail Foto" style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;">
+        <!-- Interactive Main Media Viewer Container (Supports Photo & Video) -->
+        <div id="detailMediaViewer" style="width: 100%; height: 300px; border-radius: 18px; overflow: hidden; background: #0f172a; position: relative; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center;">
+          <!-- Dynamically injected img or video via app.js -->
         </div>
 
-        <!-- Gallery Thumbnails Bar -->
+        <!-- Media Thumbnails Bar (Photos & Videos) -->
         <div id="galleryThumbnailsWrapper" style="display: flex; gap: 0.75rem; overflow-x: auto; padding-bottom: 4px;">
           <!-- Thumbnails injected via app.js -->
         </div>
 
         <div>
           <h2 id="detailProductTitle" style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem; line-height: 1.3;">-</h2>
-          <p id="detailProductDesc" style="color: #475569; font-size: 0.96rem; line-height: 1.6; margin-bottom: 1.2rem;">-</p>
+          <!-- Description shown HERE inside modal for clean cards -->
+          <p id="detailProductDesc" style="color: #475569; font-size: 0.98rem; line-height: 1.65; margin-bottom: 1.2rem; background: #f8fafc; padding: 1rem; border-radius: 14px; border: 1px solid #e2e8f0;">-</p>
         </div>
 
         <!-- Detailed Specifications Box -->
