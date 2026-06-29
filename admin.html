@@ -179,9 +179,9 @@
 
   </main>
 
-  <!-- Add / Edit Product Modal (Supports Multi-Upload up to 5 Photos/Videos) -->
+  <!-- Add / Edit Product Modal (5 Dedicated Upload Slots for Guaranteed Success) -->
   <div class="modal-overlay" id="productModal">
-    <div class="modal-content" style="max-width: 620px;">
+    <div class="modal-content" style="max-width: 640px;">
       <div class="modal-header">
         <h3 style="font-size: 1.35rem; font-weight: 800;" id="productModalTitle">➕ Tambah Barang Titipan Baru</h3>
         <button class="modal-close closeModalBtn">&times;</button>
@@ -222,14 +222,40 @@
           </div>
         </div>
 
-        <!-- Multi-File Upload (Up to 5 Photos & Videos) -->
-        <div class="form-group">
-          <label class="form-label">Upload Media Produk (Maksimal 5 Foto / Video sekaligus)</label>
-          <input type="file" id="prodImageFile" class="form-input" accept="image/*,video/*" multiple style="padding: 0.6rem;">
-          <small style="color: #64748b; font-size: 0.78rem; display: block; margin-top: 4px;">💡 Tekan tombol CTRL / SHIFT saat memilih file untuk memilih hingga 5 foto atau video sekaligus.</small>
+        <!-- 5 INDIVIDUAL UPLOAD SLOTS FOR GUARANTEED MULTI-MEDIA UPLOADS -->
+        <div class="form-group" style="background: #f8fafc; padding: 1.1rem; border-radius: 16px; border: 1px solid #e2e8f0;">
+          <label class="form-label" style="font-size: 0.95rem; font-weight: 800; color: #4f46e5; margin-bottom: 0.8rem;">📸 Slot Upload Media Produk (Upload hingga 5 Foto / Video):</label>
+
+          <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+            <div>
+              <span style="font-size: 0.82rem; font-weight: 700; color: #334155;">1. Foto / Video Utama (Wajib):</span>
+              <input type="file" id="mediaSlot1" class="form-input media-slot-input" accept="image/*,video/*" style="padding: 0.5rem; margin-top: 4px;">
+            </div>
+
+            <div>
+              <span style="font-size: 0.82rem; font-weight: 700; color: #64748b;">2. Foto / Video Tambahan 2 (Opsional):</span>
+              <input type="file" id="mediaSlot2" class="form-input media-slot-input" accept="image/*,video/*" style="padding: 0.5rem; margin-top: 4px;">
+            </div>
+
+            <div>
+              <span style="font-size: 0.82rem; font-weight: 700; color: #64748b;">3. Foto / Video Tambahan 3 (Opsional):</span>
+              <input type="file" id="mediaSlot3" class="form-input media-slot-input" accept="image/*,video/*" style="padding: 0.5rem; margin-top: 4px;">
+            </div>
+
+            <div>
+              <span style="font-size: 0.82rem; font-weight: 700; color: #64748b;">4. Foto / Video Tambahan 4 (Opsional):</span>
+              <input type="file" id="mediaSlot4" class="form-input media-slot-input" accept="image/*,video/*" style="padding: 0.5rem; margin-top: 4px;">
+            </div>
+
+            <div>
+              <span style="font-size: 0.82rem; font-weight: 700; color: #64748b;">5. Foto / Video Tambahan 5 (Opsional):</span>
+              <input type="file" id="mediaSlot5" class="form-input media-slot-input" accept="image/*,video/*" style="padding: 0.5rem; margin-top: 4px;">
+            </div>
+          </div>
           
-          <div id="mediaGalleryPreviewContainer" style="margin-top: 12px; display: flex; gap: 0.75rem; flex-wrap: wrap; background: #f8fafc; padding: 0.85rem; border-radius: 14px; border: 1px dashed #cbd5e1;">
-            <span style="color: #94a3b8; font-size: 0.84rem;" id="emptyMediaText">Belum ada media dipilih.</span>
+          <!-- Live Preview Box -->
+          <div id="mediaGalleryPreviewContainer" style="margin-top: 1rem; display: flex; gap: 0.75rem; flex-wrap: wrap; background: #ffffff; padding: 0.85rem; border-radius: 14px; border: 1px dashed #cbd5e1;">
+            <span style="color: #94a3b8; font-size: 0.84rem;" id="emptyMediaText">Pratinjau media yang dipilih akan muncul di sini.</span>
           </div>
         </div>
 

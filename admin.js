@@ -1,4 +1,4 @@
-// Executive Admin Dashboard JS Logic with Realtime Firebase Sync, Multi-Media Upload & Live Chat Replier
+// Executive Admin Dashboard JS Logic with 5 Dedicated Media Upload Slots & Live Chat Replier
 let products = JSON.parse(localStorage.getItem('jastip_products')) || INITIAL_PRODUCTS;
 let orders = JSON.parse(localStorage.getItem('jastip_orders')) || INITIAL_ORDERS;
 let registeredUsers = JSON.parse(localStorage.getItem('jastip_registered_users')) || [
@@ -6,7 +6,7 @@ let registeredUsers = JSON.parse(localStorage.getItem('jastip_registered_users')
 ];
 let webChatsList = [];
 let activeChatId = null;
-let currentUploadedMediaItems = [];
+let currentUploadedMediaSlots = [null, null, null, null, null];
 
 function formatRupiah(amount) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(amount);
@@ -285,41 +285,37 @@ function setupAdminEventListeners() {
     });
   }
 
-  // Multi-File Upload Reader (Up to 5 Photos/Videos)
-  const prodImageFile = document.getElementById('prodImageFile');
-  if (prodImageFile) {
-    prodImageFile.addEventListener('change', (e) => {
-      const files = Array.from(e.target.files).slice(0, 5);
-      if (files.length === 0) return;
+  // Bind 5 Dedicated Media Upload Slots
+  [1, 2, 3, 4, 5].forEach((slotNum, index) => {
+    const elem = document.getElementById(`mediaSlot${slotNum}`);
+    if (elem) {
+      elem.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) {
+          currentUploadedMediaSlots[index] = null;
+          renderMediaPreviewGallery(getCombinedMediaList());
+          return;
+        }
 
-      currentUploadedMediaItems = [];
-      let loadedCount = 0;
-
-      files.forEach((file) => {
         const reader = new FileReader();
         const isVideo = file.type.startsWith('video');
-        
         reader.onload = function(event) {
-          currentUploadedMediaItems.push({
+          currentUploadedMediaSlots[index] = {
             type: isVideo ? 'video' : 'image',
             url: event.target.result
-          });
-
-          loadedCount++;
-          if (loadedCount === files.length) {
-            renderMediaPreviewGallery(currentUploadedMediaItems);
-          }
+          };
+          renderMediaPreviewGallery(getCombinedMediaList());
         };
         reader.readAsDataURL(file);
       });
-    });
-  }
+    }
+  });
 
   if (openAddProductBtn) {
     openAddProductBtn.addEventListener('click', () => {
       document.getElementById('editProductId').value = '';
       productForm.reset();
-      currentUploadedMediaItems = [];
+      currentUploadedMediaSlots = [null, null, null, null, null];
       renderMediaPreviewGallery([]);
       document.getElementById('productModalTitle').textContent = '➕ Tambah Barang Titipan Baru';
       openModal(productModal);
@@ -337,16 +333,16 @@ function setupAdminEventListeners() {
       const fee = parseInt(document.getElementById('prodJastipFee').value) || 0;
       const desc = document.getElementById('prodDesc').value;
 
-      let mediaList = currentUploadedMediaItems.length > 0 ? currentUploadedMediaItems : null;
+      let mediaList = getCombinedMediaList();
       
-      if (!mediaList) {
+      if (mediaList.length === 0) {
         if (editId) {
           const existingProd = products.find(p => p.id === editId);
           if (existingProd) mediaList = existingProd.media_items || [{ type: 'image', url: existingProd.image_url }];
         }
       }
 
-      if (!mediaList || mediaList.length === 0) {
+      if (mediaList.length === 0) {
         const defaultImg = mainCat === 'MAKANAN_MINUMAN' ? 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80' : 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80';
         mediaList = [{ type: 'image', url: defaultImg }];
       }
@@ -389,13 +385,17 @@ function setupAdminEventListeners() {
   }
 }
 
+function getCombinedMediaList() {
+  return currentUploadedMediaSlots.filter(item => item !== null);
+}
+
 function renderMediaPreviewGallery(mediaItems) {
   const container = document.getElementById('mediaGalleryPreviewContainer');
   if (!container) return;
   container.innerHTML = '';
 
-  if (mediaItems.length === 0) {
-    container.innerHTML = `<span style="color: #94a3b8; font-size: 0.84rem;">Belum ada media dipilih.</span>`;
+  if (!mediaItems || mediaItems.length === 0) {
+    container.innerHTML = `<span style="color: #94a3b8; font-size: 0.84rem;">Pratinjau media yang dipilih akan muncul di sini.</span>`;
     return;
   }
 
@@ -427,8 +427,12 @@ window.openEditProductModal = function(id) {
   document.getElementById('prodJastipFee').value = p.jastip_fee;
   document.getElementById('prodDesc').value = p.description;
 
-  currentUploadedMediaItems = p.media_items || [{ type: 'image', url: p.image_url }];
-  renderMediaPreviewGallery(currentUploadedMediaItems);
+  const existingMedia = p.media_items || [{ type: 'image', url: p.image_url }];
+  currentUploadedMediaSlots = [null, null, null, null, null];
+  existingMedia.forEach((item, idx) => {
+    if (idx < 5) currentUploadedMediaSlots[idx] = item;
+  });
+  renderMediaPreviewGallery(getCombinedMediaList());
 
   document.getElementById('productModalTitle').textContent = '✏️ Edit Barang Katalog';
   openModal(productModal);
