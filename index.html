@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JastipKampus - Toko Jasa Titip Makanan & Peralatan Kuliah</title>
+  <title>JastipKampus - Layanan Titip Makanan & Peralatan Kuliah</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,182 +11,250 @@
 </head>
 <body>
 
-  <!-- Navigation Bar (User Portal Only) -->
+  <!-- Top Navigation Bar -->
   <nav class="navbar">
     <a href="index.html" class="logo-container">
-      <img src="logo.jpg" alt="Logo JastipKampus" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #4f46e5; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);">
+      <img src="logo.jpg" alt="Logo Resmi JastipKampus" style="width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 2px solid #4f46e5; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);">
       <div>
         <span class="logo-text">JastipKampus</span>
-        <span class="logo-badge">Student Store</span>
+        <span class="logo-badge">Fast & Trusted</span>
       </div>
     </a>
+
     <div class="nav-links">
-      <!-- Pesanan Saya (Hidden by default, shown only when logged in) -->
-      <button class="btn btn-secondary" id="myOrdersBtn" style="display: none;">📋 Pesanan Saya</button>
-      <!-- Sleek Icon-only Login Button -->
-      <button class="btn btn-icon-only" id="authBtn" title="Login / Daftar Akun">👤</button>
+      <button class="btn btn-secondary" id="myOrdersNavBtn" style="display: none;">📑 Pesanan Saya</button>
+      <button class="btn btn-primary" id="openAuthModalBtn">🔑 Masuk / Daftar</button>
+      <div id="userProfileMenu" style="display: none; align-items: center; gap: 0.75rem;">
+        <span id="userGreeting" style="font-weight: 700; font-size: 0.92rem; color: #4338ca; background: #e0e7ff; padding: 6px 14px; border-radius: 20px;"></span>
+        <button class="btn btn-secondary" id="logoutBtn" style="padding: 0.5rem 1rem;">Keluar</button>
+      </div>
     </div>
   </nav>
 
-  <!-- User Main Content -->
-  <main class="container">
-    <!-- Hero Banner -->
+  <!-- Hero Section -->
+  <header class="container">
     <div class="hero-card">
-      <div class="hero-content">
-        <h1 class="hero-title">Titip Makanan & Peralatan Kuliah Impianmu</h1>
-        <p class="hero-subtitle">Platform khusus mahasiswa untuk menitip makanan khas daerah, snack kekinian, hingga buku literatur dan perlengkapan praktikum secara transparan & aman.</p>
-        <div class="hero-features">
-          <span class="feature-pill">🚚 Kirim Cepat ke Kost / COD</span>
-          <span class="feature-pill">💰 Biaya Jastip Transparan</span>
-          <span class="feature-pill">🔥 Database Realtime Cloud Active</span>
-        </div>
+      <span style="color: #4f46e5; font-weight: 800; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; display: block;">Layanan Khusus Mahasiswa</span>
+      <h1 class="hero-title">Solusi Titip Makanan Khas & Peralatan Kuliah Praktis 🎓</h1>
+      <p class="hero-subtitle">Mulai dari cemilan kekinian, gudeg kaleng khas, hingga buku teks dan alat praktikum lab—semua bisa dititip dengan harga asli + fee transparan!</p>
+      <div class="hero-features">
+        <span class="feature-pill">🚚 COD Kantin / Kost</span>
+        <span class="feature-pill">💰 Transparan Fee Jastip</span>
+        <span class="feature-pill">📱 Checkout Langsung WhatsApp</span>
       </div>
     </div>
+  </header>
 
-    <!-- Toolbar Filters & Search -->
+  <!-- Main Catalog Container -->
+  <main class="container">
+    <!-- Search & Category Filters Toolbar -->
     <div class="toolbar">
       <div class="category-pills">
         <button class="pill-btn active" data-category="ALL">📦 Semua Barang</button>
         <button class="pill-btn" data-category="MAKANAN_MINUMAN">🍕 Makanan & Minuman</button>
         <button class="pill-btn" data-category="PERALATAN_KULIAH">📚 Peralatan Kuliah</button>
       </div>
+
       <div class="search-wrapper">
         <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" class="search-input" placeholder="Cari bakpia, buku, alat lab...">
+        <input type="text" class="search-input" id="searchInput" placeholder="Cari bakpia, gudeg, buku kalkulus, rotring...">
       </div>
     </div>
 
-    <!-- Dynamic Product Grid -->
-    <div id="productGrid" class="products-grid">
-      <!-- Products generated dynamically via app.js -->
+    <!-- Product Cards Grid -->
+    <div class="products-grid" id="productsGrid">
+      <!-- Populated dynamically via app.js -->
     </div>
   </main>
 
-  <!-- Checkout Modal -->
-  <div class="modal-overlay" id="checkoutModal">
-    <div class="modal-content" style="position: relative;">
-      <button class="modal-close closeModalBtn" style="position: absolute; top: 1.2rem; right: 1.2rem; z-index: 10;">&times;</button>
-      <div class="modal-header" style="margin-bottom: 1.5rem;">
-        <h3 style="font-size: 1.35rem; font-weight: 800;">📦 Form Titip Barang</h3>
+  <!-- Product Detail & Interactive Gallery Modal -->
+  <div class="modal-overlay" id="productDetailModal">
+    <div class="modal-content" style="max-width: 680px;">
+      <div class="modal-header">
+        <span id="detailCategoryBadge" class="category-tag tag-makanan" style="position: static; font-size: 0.85rem;">🍕 Makanan</span>
+        <button class="modal-close closeModalBtn">&times;</button>
       </div>
-      <div id="checkoutProductSummary" class="price-card" style="margin-bottom: 1.5rem;">
-        <!-- Summary populated via JS -->
+
+      <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        
+        <!-- Interactive Main Image Preview -->
+        <div style="width: 100%; height: 280px; border-radius: 18px; overflow: hidden; background: #f1f5f9; position: relative; border: 1px solid #e2e8f0;">
+          <img id="detailMainImage" src="" alt="Detail Foto" style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;">
+        </div>
+
+        <!-- Gallery Thumbnails Bar -->
+        <div id="galleryThumbnailsWrapper" style="display: flex; gap: 0.75rem; overflow-x: auto; padding-bottom: 4px;">
+          <!-- Thumbnails injected via app.js -->
+        </div>
+
+        <div>
+          <h2 id="detailProductTitle" style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem; line-height: 1.3;">-</h2>
+          <p id="detailProductDesc" style="color: #475569; font-size: 0.96rem; line-height: 1.6; margin-bottom: 1.2rem;">-</p>
+        </div>
+
+        <!-- Detailed Specifications Box -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.25rem;">
+          <h4 style="font-size: 0.95rem; font-weight: 800; color: #0f172a; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 0.4rem;">📋 Spesifikasi Lengkap Produk:</h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.85rem; font-size: 0.88rem;">
+            <div>
+              <span style="color: #64748b; display: block; font-size: 0.78rem; text-transform: uppercase; font-weight: 700;">🏪 Toko / Sumber Asli</span>
+              <strong id="detailSourceStore" style="color: #334155;">-</strong>
+            </div>
+            <div>
+              <span style="color: #64748b; display: block; font-size: 0.78rem; text-transform: uppercase; font-weight: 700;">⚖️ Berat / Ukuran</span>
+              <strong id="detailWeight" style="color: #334155;">-</strong>
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <span style="color: #64748b; display: block; font-size: 0.78rem; text-transform: uppercase; font-weight: 700;">⏳ Daya Tahan / Ketahanan</span>
+              <strong id="detailExpiry" style="color: #334155;">-</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transparent Pricing Card -->
+        <div class="price-card" style="margin-bottom: 0;">
+          <div class="price-item">
+            <span>Harga Asli Toko:</span>
+            <span id="detailOriginalPrice" style="font-weight: 700;">Rp 0</span>
+          </div>
+          <div class="price-item">
+            <span>Jastip Fee Transparan:</span>
+            <span id="detailJastipFee" style="font-weight: 700; color: #4f46e5;">+ Rp 0</span>
+          </div>
+          <div class="price-grand-total">
+            <span>Total Yang Dibayar:</span>
+            <span id="detailGrandTotal">Rp 0</span>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="detailOrderWaBtn" style="justify-content: center; padding: 1rem; font-size: 1.05rem; width: 100%;">
+          🛒 Titip Barang Ini Sekarang (Via WhatsApp)
+        </button>
+
       </div>
-      <form id="checkoutForm">
-        <input type="hidden" id="checkoutProductId">
-        <div class="form-group">
-          <label class="form-label">Nama Lengkap Pembeli</label>
-          <input type="text" id="buyerName" class="form-input" placeholder="Contoh: Budi Santoso" required>
+    </div>
+  </div>
+
+  <!-- Order / Checkout Modal -->
+  <div class="modal-overlay" id="orderModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="font-size: 1.35rem; font-weight: 800;">🛒 Form Titip Barang</h3>
+        <button class="modal-close closeModalBtn">&times;</button>
+      </div>
+      
+      <form id="orderForm">
+        <input type="hidden" id="orderProductId">
+        
+        <div style="background: #f8fafc; padding: 1rem; border-radius: 12px; margin-bottom: 1.2rem; border: 1px solid #e2e8f0;">
+          <div style="font-size: 0.85rem; color: #64748b;">Barang Titipan:</div>
+          <div style="font-weight: 800; font-size: 1.05rem; color: #0f172a;" id="modalProductTitle">-</div>
+          <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.9rem;">
+            <span>Total Pembayaran:</span>
+            <strong style="color: #059669;" id="modalProductPrice">Rp 0</strong>
+          </div>
         </div>
+
         <div class="form-group">
-          <label class="form-label">Nomor WhatsApp (Aktif)</label>
-          <input type="tel" id="buyerWa" class="form-input" placeholder="Contoh: 081234567890" required>
+          <label class="form-label">Nama Lengkap Mahasiswa</label>
+          <input type="text" id="orderUserName" class="form-input" required placeholder="Contoh: Budi Santoso">
         </div>
+
         <div class="form-group">
-          <label class="form-label">Lokasi COD Kampus / Alamat Kost</label>
-          <textarea id="buyerNotes" class="form-input" rows="3" placeholder="Contoh: COD Depan Perpustakaan Pusat UGM jam 13.00" required></textarea>
+          <label class="form-label">Nomor WhatsApp Aktif</label>
+          <input type="tel" id="orderUserWa" class="form-input" required placeholder="081234567890">
         </div>
+
+        <div class="form-group">
+          <label class="form-label">Lokasi Antar / COD (Kantin / Nama Kost)</label>
+          <textarea id="orderNotes" class="form-input" rows="3" required placeholder="Contoh: COD Kantin Fakultas Teknik UGM jam 13.00 WIB atau Kost Biru Sekip"></textarea>
+        </div>
+
         <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 1rem;">
-          💬 Titip Sekarang via WhatsApp
+          🚀 Kirim Pesanan ke WhatsApp Admin
         </button>
       </form>
     </div>
   </div>
 
-  <!-- Auth Modal (Masuk, Daftar, & Lupa Password) -->
-  <div class="modal-overlay" id="loginModal">
-    <div class="modal-content" style="max-width: 440px; position: relative;">
-      <button class="modal-close closeModalBtn" style="position: absolute; top: 1rem; right: 1.2rem; z-index: 10;">&times;</button>
+  <!-- User Auth Modal (Login / Register / Reset Password) -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal-content" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 style="font-size: 1.35rem; font-weight: 800;" id="authModalTitle">🔑 Masuk ke JastipKampus</h3>
+        <button class="modal-close closeModalBtn">&times;</button>
+      </div>
 
-      <div class="modal-header" id="authTabsHeader" style="margin-bottom: 1.5rem; margin-top: 0.5rem; justify-content: center;">
-        <div class="category-pills" style="width: 100%; justify-content: center;">
-          <button class="pill-btn active" id="tabMasukBtn" style="flex: 1; text-align: center;">🔑 Masuk</button>
-          <button class="pill-btn" id="tabDaftarBtn" style="flex: 1; text-align: center;">📝 Daftar Akun</button>
+      <!-- VIEW 1: LOGIN FORM -->
+      <form id="loginForm">
+        <div class="form-group">
+          <label class="form-label">Email Gmail / Kampus</label>
+          <input type="email" id="loginEmail" class="form-input" required placeholder="nama@gmail.com">
         </div>
-      </div>
-
-      <!-- Tab 1: Form Masuk (Login) -->
-      <div id="authMasukView">
-        <p style="color: var(--text-muted); font-size: 0.88rem; text-align: center; margin-bottom: 1.25rem;">Masuk ke akun JastipKampus Anda.</p>
-        <form id="loginEmailForm">
-          <div class="form-group">
-            <label class="form-label">Email Gmail / Kampus</label>
-            <input type="email" id="loginEmailInput" class="form-input" placeholder="nama@gmail.com" required>
-          </div>
-          <div class="form-group">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <label class="form-label" style="margin-bottom: 0;">Kata Sandi</label>
-              <a href="#" id="forgotPasswordLink" style="font-size: 0.8rem; color: #4f46e5; text-decoration: none;">Lupa Kata Sandi?</a>
-            </div>
-            <input type="password" id="loginPasswordInput" class="form-input" placeholder="••••••••" required>
-          </div>
-          <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem;">
-            🔓 Masuk Akun
-          </button>
-        </form>
-      </div>
-
-      <!-- Tab 2: Form Daftar (Register) -->
-      <div id="authDaftarView" style="display: none;">
-        <p style="color: var(--text-muted); font-size: 0.88rem; text-align: center; margin-bottom: 1.25rem;">Buat akun baru Mahasiswa untuk menyimpan pesanan.</p>
-        <form id="registerForm">
-          <div class="form-group">
-            <label class="form-label">Nama Lengkap</label>
-            <input type="text" id="regNameInput" class="form-input" placeholder="Budi Santoso" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Email Gmail / Kampus</label>
-            <input type="email" id="regEmailInput" class="form-input" placeholder="budi@gmail.com" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Buat Kata Sandi</label>
-            <input type="password" id="regPasswordInput" class="form-input" placeholder="Minimal 6 karakter" required minlength="6">
-          </div>
-          <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; background: linear-gradient(135deg, #10b981, #059669);">
-            ✨ Daftar Akun Sekarang
-          </button>
-        </form>
-      </div>
-
-      <!-- View 3: Form Lupa Password -->
-      <div id="authLupaPasswordView" style="display: none;">
-        <div style="text-align: center; margin-bottom: 1rem;">
-          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔐</div>
-          <h3 style="font-size: 1.25rem; font-weight: 800;">Pemulihan Kata Sandi</h3>
-          <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.4rem;">Masukkan email terdaftar Anda untuk menerima instruksi pemulihan kata sandi.</p>
+        <div class="form-group">
+          <label class="form-label">Kata Sandi</label>
+          <input type="password" id="loginPassword" class="form-input" required placeholder="••••••••">
         </div>
-        <form id="forgotPasswordForm">
-          <div class="form-group">
-            <label class="form-label">Email Terdaftar</label>
-            <input type="email" id="forgotEmailInput" class="form-input" placeholder="nama@gmail.com" required>
-          </div>
-          <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; margin-bottom: 1rem;">
-            📩 Kirim Instruksi Reset
-          </button>
-          <button type="button" id="backToLoginBtn" class="btn btn-secondary" style="width: 100%; justify-content: center;">
-            ⬅️ Kembali ke Halaman Masuk
-          </button>
-        </form>
-      </div>
+        <div style="text-align: right; margin-bottom: 1.2rem;">
+          <a href="#" id="switchToForgotBtn" style="color: #4f46e5; font-size: 0.88rem; font-weight: 600; text-decoration: none;">Lupa Kata Sandi?</a>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 1rem;">Masuk Akun</button>
+        <p style="text-align: center; margin-top: 1.2rem; font-size: 0.9rem; color: #64748b;">
+          Belum punya akun? <a href="#" id="switchToRegisterBtn" style="color: #4f46e5; font-weight: 700; text-decoration: none;">Daftar Sekarang</a>
+        </p>
+      </form>
+
+      <!-- VIEW 2: REGISTER FORM -->
+      <form id="registerForm" style="display: none;">
+        <div class="form-group">
+          <label class="form-label">Nama Lengkap</label>
+          <input type="text" id="regName" class="form-input" required placeholder="Contoh: Rian Mahasiswa">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Gmail / Kampus</label>
+          <input type="email" id="regEmail" class="form-input" required placeholder="rian@gmail.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Buat Kata Sandi</label>
+          <input type="password" id="regPassword" class="form-input" required placeholder="Minimal 6 karakter">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 1rem;">Buat Akun Baru</button>
+        <p style="text-align: center; margin-top: 1.2rem; font-size: 0.9rem; color: #64748b;">
+          Sudah punya akun? <a href="#" id="switchToLoginFromRegBtn" style="color: #4f46e5; font-weight: 700; text-decoration: none;">Masuk di sini</a>
+        </p>
+      </form>
+
+      <!-- VIEW 3: FORGOT PASSWORD FORM -->
+      <form id="forgotForm" style="display: none;">
+        <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1.2rem;">Masukkan email terdaftar Anda. Kami akan mengirimkan tautan / petunjuk pemulihan kata sandi.</p>
+        <div class="form-group">
+          <label class="form-label">Email Terdaftar</label>
+          <input type="email" id="forgotEmail" class="form-input" required placeholder="nama@gmail.com">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 1rem;">Kirim Instuksi Pemulihan</button>
+        <p style="text-align: center; margin-top: 1.2rem; font-size: 0.9rem; color: #64748b;">
+          Kembali ke <a href="#" id="switchToLoginFromForgotBtn" style="color: #4f46e5; font-weight: 700; text-decoration: none;">Halaman Masuk</a>
+        </p>
+      </form>
 
     </div>
   </div>
 
-  <!-- Account & Order History Modal -->
-  <div class="modal-overlay" id="orderHistoryModal">
-    <div class="modal-content" style="max-width: 700px; position: relative;">
-      <button class="modal-close closeModalBtn" style="position: absolute; top: 1.2rem; right: 1.2rem; z-index: 10;">&times;</button>
-      <div class="modal-header" style="margin-bottom: 1.5rem;">
-        <h3 style="font-size: 1.35rem; font-weight: 800;">📋 Riwayat Pesanan Saya</h3>
+  <!-- User Orders History Modal -->
+  <div class="modal-overlay" id="myOrdersModal">
+    <div class="modal-content" style="max-width: 640px;">
+      <div class="modal-header">
+        <h3 style="font-size: 1.35rem; font-weight: 800;">📑 Riwayat Pesanan Saya</h3>
+        <button class="modal-close closeModalBtn">&times;</button>
       </div>
-      <div id="userOrdersList">
-        <!-- List inserted via JS -->
+      <div id="myOrdersList" style="display: flex; flex-direction: column; gap: 1rem; max-height: 420px; overflow-y: auto;">
+        <!-- Orders injected via app.js -->
       </div>
     </div>
   </div>
 
   <footer>
-    <p>&copy; 2026 JastipKampus. Platform Jasa Titip Makanan & Peralatan Kuliah Khusus Mahasiswa.</p>
+    <p>&copy; 2026 JastipKampus. Platform Titip Makanan & Peralatan Kuliah Praktis Mahasiswa.</p>
   </footer>
 
   <!-- Firebase SDK Libraries -->
