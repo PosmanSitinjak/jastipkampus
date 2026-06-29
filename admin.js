@@ -1,4 +1,4 @@
-// Executive Admin Dashboard JS Logic with Easy Direct Delete Chat Buttons & Live Chat Replier
+// Executive Admin Dashboard JS Logic with Secure Admin Login Gate System
 let products = JSON.parse(localStorage.getItem('jastip_products')) || INITIAL_PRODUCTS;
 let orders = JSON.parse(localStorage.getItem('jastip_orders')) || INITIAL_ORDERS;
 let registeredUsers = JSON.parse(localStorage.getItem('jastip_registered_users')) || [
@@ -13,6 +13,9 @@ function formatRupiah(amount) {
 }
 
 // DOM Elements
+const adminLoginGate = document.getElementById('adminLoginGate');
+const adminLoginForm = document.getElementById('adminLoginForm');
+const adminMainDashboard = document.getElementById('adminMainDashboard');
 const adminProductsTable = document.getElementById('adminProductsTable');
 const adminOrdersTable = document.getElementById('adminOrdersTable');
 const adminUsersTable = document.getElementById('adminUsersTable');
@@ -37,10 +40,41 @@ const statPendingOrders = document.getElementById('statPendingOrders');
 const statTotalRevenue = document.getElementById('statTotalRevenue');
 
 document.addEventListener('DOMContentLoaded', () => {
-  initRealtimeCloudSync();
-  renderDashboard();
-  setupAdminEventListeners();
+  checkAdminAuth();
 });
+
+function checkAdminAuth() {
+  const isAuthed = sessionStorage.getItem('jastip_admin_authed') === 'true';
+  if (isAuthed) {
+    if (adminLoginGate) adminLoginGate.style.display = 'none';
+    if (adminMainDashboard) adminMainDashboard.style.display = 'block';
+    initRealtimeCloudSync();
+    renderDashboard();
+    setupAdminEventListeners();
+  } else {
+    if (adminLoginGate) adminLoginGate.style.display = 'flex';
+    if (adminMainDashboard) adminMainDashboard.style.display = 'none';
+    setupLoginGateListener();
+  }
+}
+
+function setupLoginGateListener() {
+  if (adminLoginForm) {
+    adminLoginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const u = document.getElementById('adminUserAuth').value.trim();
+      const p = document.getElementById('adminPassAuth').value.trim();
+
+      if ((u === 'admin1' || u === 'admin.itdel') && (p === 'admin123' || p === 'del2026')) {
+        sessionStorage.setItem('jastip_admin_authed', 'true');
+        alert('🔓 Login Admin Berhasil! Selamat Datang di Executive Dashboard IT Del.');
+        checkAdminAuth();
+      } else {
+        alert('❌ Username atau Password Admin Salah! Mohon periksa kembali.');
+      }
+    });
+  }
+}
 
 function initRealtimeCloudSync() {
   if (typeof db !== 'undefined' && db) {
@@ -423,7 +457,9 @@ function setupAdminEventListeners() {
 
   if (adminLogoutBtn) {
     adminLogoutBtn.addEventListener('click', () => {
-      window.location.href = 'index.html';
+      sessionStorage.removeItem('jastip_admin_authed');
+      alert('🔒 Anda telah keluar dari Dashboard Admin.');
+      checkAdminAuth();
     });
   }
 }
