@@ -84,7 +84,7 @@ function initRealtimeCloudSync() {
   }
 }
 
-// Clean Card Rendering (Description hidden on cards for ultra-neat consistent alignment!)
+// Clean Card Rendering (100% Identical Height Cards & Perfectly Centered Equal Buttons)
 function renderProducts() {
   if (!productsGrid) return;
   productsGrid.innerHTML = '';
@@ -125,7 +125,7 @@ function renderProducts() {
         ${hasVideo ? '<span style="position: absolute; bottom: 12px; right: 12px; background: rgba(15,23,42,0.85); color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; backdrop-filter: blur(8px);">🎬 Video Ada</span>' : ''}
       </div>
       <div class="product-content">
-        <h3 class="product-title" onclick="openProductDetailModal('${p.id}')" style="cursor: pointer; margin-bottom: 1rem;">${p.title}</h3>
+        <h3 class="product-title" onclick="openProductDetailModal('${p.id}')" style="cursor: pointer;">${p.title}</h3>
         
         <div class="price-card">
           <div class="price-item">
@@ -142,11 +142,11 @@ function renderProducts() {
           </div>
         </div>
 
-        <div style="display: flex; gap: 0.6rem; margin-top: auto;">
-          <button class="btn btn-secondary" style="flex: 1; justify-content: center; padding: 0.75rem; font-size: 0.84rem;" onclick="openProductDetailModal('${p.id}')">
+        <div style="display: flex; gap: 0.5rem; justify-content: center; width: 100%; margin-top: auto;">
+          <button class="btn btn-secondary" style="flex: 1; justify-content: center; padding: 0.75rem 0.5rem; font-size: 0.82rem;" onclick="openProductDetailModal('${p.id}')">
             🔍 Detail & Media
           </button>
-          <button class="btn btn-primary" style="flex: 1.2; justify-content: center; padding: 0.75rem; font-size: 0.84rem;" onclick="openOrderModal('${p.id}')">
+          <button class="btn btn-primary" style="flex: 1; justify-content: center; padding: 0.75rem 0.5rem; font-size: 0.82rem;" onclick="openOrderModal('${p.id}')">
             🛒 Titip Barang
           </button>
         </div>
