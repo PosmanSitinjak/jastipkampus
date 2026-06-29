@@ -36,34 +36,43 @@
     </div>
   </nav>
 
-  <!-- Eye-Catching Masterpiece Hero Section -->
+  <!-- Eye-Catching Super-Interactive Hero Section -->
   <header class="container">
     <div class="hero-card-vibrant">
       <div class="hero-content-left">
-        <span class="hero-promo-badge">⚡ Promo Mahasiswa Baru: Free Ongkir Jastip Pertama!</span>
+        <span class="hero-promo-badge" id="heroPromoTrigger" style="cursor: pointer;" title="Klik untuk klaim info promo!">⚡ Promo Mahasiswa Baru: Free Ongkir Jastip Pertama! 🎁</span>
         <h1 class="hero-title-vibrant">Solusi Titip Makanan Khas & Peralatan Kuliah Praktis 🎓</h1>
         <p class="hero-subtitle-vibrant">Mulai dari cemilan kekinian, gudeg kaleng khas Jogja, hingga buku teks & alat praktikum lab—semua siap dititip dengan harga asli + fee transparan!</p>
+        
+        <!-- Interactive Hero Action Buttons & Live Stats -->
+        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: 1.8rem;">
+          <button class="btn btn-primary" id="heroExploreCtaBtn" style="padding: 0.95rem 1.8rem; font-size: 1rem; border-radius: 30px; background: #ffffff; color: #312e81; font-weight: 800; box-shadow: 0 8px 25px rgba(0,0,0,0.2);">
+            🚀 Titip Sekarang (Lihat Katalog)
+          </button>
+          <span style="color: #fef08a; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem;">🟢 Status Kampus: BUKA 24 JAM</span>
+        </div>
+
         <div class="hero-features-vibrant">
-          <span class="feature-pill-vibrant">🚚 COD Kantin / Kost</span>
-          <span class="feature-pill-vibrant">💰 Transparan Fee Jastip</span>
-          <span class="feature-pill-vibrant">📱 Checkout Langsung WhatsApp</span>
+          <span class="feature-pill-vibrant" id="pillCodTrigger" style="cursor: pointer;" title="Klik untuk info COD">🚚 COD Kantin / Kost</span>
+          <span class="feature-pill-vibrant" id="pillFeeTrigger" style="cursor: pointer;" title="Klik untuk info Jastip Fee">💰 Transparan Fee Jastip</span>
+          <span class="feature-pill-vibrant" id="pillWaTrigger" style="cursor: pointer;" title="Klik untuk info Checkout WA">📱 Checkout Langsung WhatsApp</span>
         </div>
       </div>
       
       <div class="hero-brand-box">
-        <img src="logo.jpg" alt="Ilustrasi JastipKampus" class="hero-brand-img">
+        <img src="logo.jpg" alt="Ilustrasi JastipKampus" class="hero-brand-img" id="heroBrandAvatar" style="cursor: pointer;" title="Klik saya untuk sapaan spesial!">
       </div>
     </div>
   </header>
 
   <!-- Main Catalog Container -->
   <main class="container">
-    <!-- Search & Category Filters Toolbar with Live Item Counters -->
-    <div class="toolbar">
+    <!-- Clean Search & Category Filters Toolbar (No Numbers) -->
+    <div class="toolbar" id="catalogSection">
       <div class="category-pills">
-        <button class="pill-btn active" data-category="ALL">📦 Semua Barang (5)</button>
-        <button class="pill-btn" data-category="MAKANAN_MINUMAN">🍕 Makanan (3)</button>
-        <button class="pill-btn" data-category="PERALATAN_KULIAH">📚 Peralatan (2)</button>
+        <button class="pill-btn active" data-category="ALL">📦 Semua Barang</button>
+        <button class="pill-btn" data-category="MAKANAN_MINUMAN">🍕 Makanan & Minuman</button>
+        <button class="pill-btn" data-category="PERALATAN_KULIAH">📚 Peralatan Kuliah</button>
       </div>
 
       <div class="search-wrapper">

@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateUserAuthUI();
   renderProducts();
   setupEventListeners();
+  setupInteractiveHeroEvents();
 });
 
 function initRealtimeCloudSync() {
@@ -84,7 +85,7 @@ function initRealtimeCloudSync() {
   }
 }
 
-// Clean Card Rendering (100% Identical Height Cards & Perfectly Centered Equal Buttons)
+// Clean Card Rendering
 function renderProducts() {
   if (!productsGrid) return;
   productsGrid.innerHTML = '';
@@ -156,6 +157,53 @@ function renderProducts() {
   });
 }
 
+function setupInteractiveHeroEvents() {
+  const heroExploreCtaBtn = document.getElementById('heroExploreCtaBtn');
+  if (heroExploreCtaBtn) {
+    heroExploreCtaBtn.addEventListener('click', () => {
+      const catalogSection = document.getElementById('catalogSection');
+      if (catalogSection) {
+        catalogSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+
+  const heroPromoTrigger = document.getElementById('heroPromoTrigger');
+  if (heroPromoTrigger) {
+    heroPromoTrigger.addEventListener('click', () => {
+      alert('🎉 PROMO MAHASISWA BARU!\n\nGunakan Layanan JastipKampus hari ini dan dapatkan Potongan Fee Jastip Gratis pada titipan pertama Anda via WhatsApp!');
+    });
+  }
+
+  const pillCodTrigger = document.getElementById('pillCodTrigger');
+  if (pillCodTrigger) {
+    pillCodTrigger.addEventListener('click', () => {
+      alert('🚚 JANGKAUAN COD LENGKAP!\n\nTim kurir JastipKampus siap mengantar pesanan Anda langsung ke Kantin Fakultas UGM/UNY, Perpustakaan Pusat, maupun ke Gerbang Kost Anda!');
+    });
+  }
+
+  const pillFeeTrigger = document.getElementById('pillFeeTrigger');
+  if (pillFeeTrigger) {
+    pillFeeTrigger.addEventListener('click', () => {
+      alert('💰 BIAYA JASTIP TRANSPARAN!\n\nTidak ada biaya tersembunyi. Anda membayar sesuai Harga Asli Struk Toko + Fee Jastip yang tercantum jelas!');
+    });
+  }
+
+  const pillWaTrigger = document.getElementById('pillWaTrigger');
+  if (pillWaTrigger) {
+    pillWaTrigger.addEventListener('click', () => {
+      alert('📱 CHECKOUT PRAKTIS WHATSAPP!\n\nCukup pilih barang, isi lokasi COD, dan sistem akan mengonversi pesanan Anda menjadi rincian rapi siap kirim ke WhatsApp Admin!');
+    });
+  }
+
+  const heroBrandAvatar = document.getElementById('heroBrandAvatar');
+  if (heroBrandAvatar) {
+    heroBrandAvatar.addEventListener('click', () => {
+      alert('🎓 Selamat Datang di Platform JastipKampus!\n\nTeman setia mahasiswa untuk urusan titip makanan dan perlengkapan kuliah. Selamat menelusuri katalog!');
+    });
+  }
+}
+
 function renderMediaInViewer(mediaItem) {
   if (!detailMediaViewer) return;
   detailMediaViewer.innerHTML = '';
@@ -201,7 +249,6 @@ window.openProductDetailModal = function(id) {
   // Setup Media Items (Photos & Videos)
   let mediaList = prod.media_items && prod.media_items.length > 0 ? prod.media_items : [{ type: 'image', url: prod.image_url }];
   
-  // Render active main media (First item)
   renderMediaInViewer(mediaList[0]);
 
   galleryThumbnailsWrapper.innerHTML = '';
