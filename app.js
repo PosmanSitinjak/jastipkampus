@@ -30,7 +30,16 @@ const floatingChatBtn = document.getElementById('floatingChatBtn');
 const chatPopupWidget = document.getElementById('chatPopupWidget');
 const closeChatPopupBtn = document.getElementById('closeChatPopupBtn');
 
-// Product Detail & Interactive Media Gallery Elements (Photos & Videos)
+// Dual Mode Chat Elements
+const tabWebChatBtn = document.getElementById('tabWebChatBtn');
+const tabWaChatBtn = document.getElementById('tabWaChatBtn');
+const webChatContainer = document.getElementById('webChatContainer');
+const waChatContainer = document.getElementById('waChatContainer');
+const webChatForm = document.getElementById('webChatForm');
+const webChatInput = document.getElementById('webChatInput');
+const webChatMessages = document.getElementById('webChatMessages');
+
+// Product Detail & Interactive Media Gallery Elements
 const productDetailModal = document.getElementById('productDetailModal');
 const detailMediaViewer = document.getElementById('detailMediaViewer');
 const galleryThumbnailsWrapper = document.getElementById('galleryThumbnailsWrapper');
@@ -60,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateUserAuthUI();
   renderProducts();
   setupEventListeners();
+  setupDualChatLogic();
 });
 
 function initRealtimeCloudSync() {
@@ -159,6 +169,59 @@ function renderProducts() {
   });
 }
 
+function setupDualChatLogic() {
+  if (tabWebChatBtn && tabWaChatBtn && webChatContainer && waChatContainer) {
+    tabWebChatBtn.addEventListener('click', () => {
+      tabWebChatBtn.classList.add('active');
+      tabWaChatBtn.classList.remove('active');
+      webChatContainer.style.display = 'flex';
+      waChatContainer.style.display = 'none';
+    });
+
+    tabWaChatBtn.addEventListener('click', () => {
+      tabWaChatBtn.classList.add('active');
+      tabWebChatBtn.classList.remove('active');
+      waChatContainer.style.display = 'flex';
+      webChatContainer.style.display = 'none';
+    });
+  }
+
+  if (webChatForm && webChatInput && webChatMessages) {
+    webChatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = webChatInput.value.trim();
+      if (!text) return;
+
+      // User Message Bubble
+      const userBubble = document.createElement('div');
+      userBubble.className = 'chat-bubble-user';
+      userBubble.textContent = text;
+      webChatMessages.appendChild(userBubble);
+
+      webChatInput.value = '';
+      webChatMessages.scrollTop = webChatMessages.scrollHeight;
+
+      // Automated Admin Reply Simulator
+      setTimeout(() => {
+        const adminBubble = document.createElement('div');
+        adminBubble.className = 'chat-bubble-admin';
+        
+        const lower = text.toLowerCase();
+        if (lower.includes('status') || lower.includes('pesanan') || lower.includes('cek')) {
+          adminBubble.textContent = "Halo Ka! 👋 Untuk cek status pesanan terkini, Kaka bisa buka menu 'Pesanan Saya' di kanan atas atau klik tab 'Chat via WA' ya!";
+        } else if (lower.includes('ongkir') || lower.includes('biaya') || lower.includes('fee')) {
+          adminBubble.textContent = "Biaya Jastip di JastipKampus 100% transparan Ka! Hanya 1.500 - 10.000 rupiah per barang tergantung jenisnya. Tanpa biaya tersembunyi! 😊";
+        } else {
+          adminBubble.textContent = `Pesan Anda ("${text}") telah diterima oleh Admin CS JastipKampus. Tim kurir kami akan segera memproses informasi titipan Anda! 🙏`;
+        }
+
+        webChatMessages.appendChild(adminBubble);
+        webChatMessages.scrollTop = webChatMessages.scrollHeight;
+      }, 700);
+    });
+  }
+}
+
 function renderMediaInViewer(mediaItem) {
   if (!detailMediaViewer) return;
   detailMediaViewer.innerHTML = '';
@@ -201,7 +264,7 @@ window.openProductDetailModal = function(id) {
   detailJastipFee.textContent = `+ ${formatRupiah(prod.jastip_fee)}`;
   detailGrandTotal.textContent = formatRupiah(prod.price_original + prod.jastip_fee);
 
-  // Setup Media Items (Photos & Videos)
+  // Setup Media Items
   let mediaList = prod.media_items && prod.media_items.length > 0 ? prod.media_items : [{ type: 'image', url: prod.image_url }];
   
   renderMediaInViewer(mediaList[0]);

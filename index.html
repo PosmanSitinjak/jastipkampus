@@ -275,7 +275,7 @@
     </div>
   </div>
 
-  <!-- Ultra-Attractive Live Chat Admin Widget Popup Card -->
+  <!-- Ultra-Attractive DUAL-MODE Live Chat Admin Widget Popup Card -->
   <div class="chat-popup-widget" id="chatPopupWidget">
     <div class="chat-popup-header">
       <div class="chat-admin-info">
@@ -291,9 +291,30 @@
       <button id="closeChatPopupBtn" style="background: transparent; border: none; color: #94a3b8; font-size: 1.3rem; cursor: pointer;">&times;</button>
     </div>
 
-    <div class="chat-popup-body">
+    <!-- DUAL MODE TAB SWITCHER -->
+    <div class="chat-mode-tabs">
+      <button class="chat-mode-btn active" id="tabWebChatBtn">🌐 Chat Langsung di Web</button>
+      <button class="chat-mode-btn" id="tabWaChatBtn">📱 Chat via WhatsApp</button>
+    </div>
+
+    <!-- MODE 1: WEB MESSENGER CONTAINER -->
+    <div class="chat-popup-body" id="webChatContainer">
+      <div class="web-chat-messages" id="webChatMessages">
+        <div class="chat-bubble-admin">
+          Halo Ka! 👋 Selamat datang di Web Messenger JastipKampus. Ada yang bisa kami bantu seputar titipanmu? Ketik pesanmu di bawah ya!
+        </div>
+      </div>
+
+      <form id="webChatForm" class="web-chat-input-wrapper">
+        <input type="text" id="webChatInput" class="web-chat-input" placeholder="Tulis pesan ke Admin CS..." required>
+        <button type="submit" class="web-chat-send-btn">➔</button>
+      </form>
+    </div>
+
+    <!-- MODE 2: WHATSAPP DIRECT CONTAINER -->
+    <div class="chat-popup-body" id="waChatContainer" style="display: none;">
       <div class="chat-bubble-admin">
-        Halo Ka! 👋 Ada yang bisa kami bantu seputar pesanan atau titipan barangmu hari ini? Pilih topik di bawah ya:
+        Pilih topik pertanyaan di bawah ini untuk terhubung secara instan ke WhatsApp Admin kami:
       </div>
 
       <div class="chat-quick-options">
