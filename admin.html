@@ -14,38 +14,38 @@
   <!-- Navigation Bar (Admin Portal Only) -->
   <nav class="navbar">
     <a href="admin.html" class="logo-container">
-      <img src="logo.jpg" alt="Logo Admin JastipKampus" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #4f46e5; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);">
+      <img src="logo.jpg" alt="Logo Admin JastipKampus" style="width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 2px solid #4f46e5; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);">
       <div>
-        <span class="logo-text" style="background: linear-gradient(to right, #4f46e5, #0891b2); -webkit-background-clip: text;">Admin Panel</span>
-        <span class="logo-badge" style="background: #eff6ff; color: #1d4ed8; border-color: #dbeafe;" id="currentAdminBadge">System Protected</span>
+        <span class="logo-text">Admin Panel</span>
+        <span class="logo-badge" id="currentAdminBadge">System Protected</span>
       </div>
     </a>
     <div class="nav-links">
-      <span id="adminInfoLabel" style="font-size: 0.88rem; color: #4338ca; font-weight: 600; display: none;"></span>
+      <span id="adminInfoLabel" style="font-size: 0.9rem; color: #4338ca; font-weight: 700; background: #e0e7ff; padding: 6px 14px; border-radius: 20px; display: none;"></span>
       <button class="btn btn-secondary" id="adminLogoutBtn" style="display: none;">🔒 Logout Admin</button>
     </div>
   </nav>
 
   <!-- Admin Login Gate View (Shown when not logged in as Admin) -->
-  <div id="adminLoginGate" class="container" style="max-width: 450px; margin-top: 4rem;">
-    <div class="hero-card" style="text-align: center; padding: 2.5rem 2rem;">
-      <img src="logo.jpg" alt="Logo Admin JastipKampus" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #4f46e5; box-shadow: 0 8px 24px rgba(79, 70, 229, 0.35); margin-bottom: 1rem;">
-      <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 0.5rem;">Portal Masuk Admin</h2>
-      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">Silakan pilih atau masukkan akun Admin Anda untuk mengelola data toko.</p>
+  <div id="adminLoginGate" class="container" style="max-width: 440px; margin-top: 4rem;">
+    <div class="hero-card" style="text-align: center; padding: 3rem 2.2rem; background: #ffffff;">
+      <img src="logo.jpg" alt="Logo Admin JastipKampus" style="width: 86px; height: 86px; border-radius: 50%; object-fit: cover; border: 3px solid #4f46e5; box-shadow: 0 8px 24px rgba(79, 70, 229, 0.35); margin-bottom: 1.2rem;">
+      <h2 style="font-size: 1.65rem; font-weight: 800; margin-bottom: 0.5rem; color: #0f172a;">Portal Masuk Admin</h2>
+      <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 2.2rem;">Silakan pilih atau masukkan akun Admin Anda untuk mengelola data toko secara aman.</p>
       
       <form id="adminLoginForm">
         <div class="form-group" style="text-align: left;">
-          <label class="form-label">Pilih / Input Akun Admin</label>
-          <select id="adminAccountSelect" class="form-input" style="margin-bottom: 0.75rem;">
-            <option value="admin1">👤 Admin 1</option>
-            <option value="admin2">👤 Admin 2</option>
+          <label class="form-label">Pilih Akun Admin</label>
+          <select id="adminAccountSelect" class="form-input" style="margin-bottom: 0.85rem;">
+            <option value="admin1">👤 Admin 1 (Super Admin)</option>
+            <option value="admin2">👤 Admin 2 (Operasional)</option>
           </select>
         </div>
         <div class="form-group" style="text-align: left;">
           <label class="form-label">Kata Sandi Admin</label>
           <input type="password" id="adminPasswordInput" class="form-input" placeholder="admin123" value="admin123" required>
         </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 1rem;">
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.9rem; font-size: 1rem;">
           🔓 Masuk ke Dashboard Admin
         </button>
       </form>
@@ -55,21 +55,19 @@
   <!-- Admin Main Content (Shown after Admin login) -->
   <main class="container" id="adminMainDashboard" style="display: none;">
     
-    <!-- Admin Dashboard Header & Clean Navigation Tabs -->
-    <div style="margin-bottom: 2rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
-        <div>
-          <h1 style="font-size: 2rem; font-weight: 800;">🛡️ Dashboard Pengelola Data</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem;">Kelola katalog produk makanan/alat kuliah, pesanan masuk, dan akun pengguna secara terstruktur.</p>
-        </div>
-      </div>
+    <!-- Executive Header Banner -->
+    <div class="admin-header-banner">
+      <h1>🛡️ Dashboard Pengelola JastipKampus</h1>
+      <p>Kelola katalog produk makanan/alat kuliah, pantau pesanan mahasiswa, dan rekap akun terdaftar secara real-time.</p>
+    </div>
 
-      <!-- Clean Tabbed Navigation Menu for Admin -->
-      <div class="category-pills" style="width: 100%; max-width: 750px;">
-        <button class="pill-btn active" id="adminTabOverview">📊 Overview & Stat</button>
-        <button class="pill-btn" id="adminTabProducts">📦 Kelola Produk</button>
-        <button class="pill-btn" id="adminTabOrders">📑 Pesanan Masuk</button>
-        <button class="pill-btn" id="adminTabUsers">👥 Akun Pengguna</button>
+    <!-- Clean Tabbed Navigation Menu for Admin -->
+    <div style="margin-bottom: 2rem;">
+      <div class="category-pills" style="width: 100%; max-width: 760px; padding: 8px;">
+        <button class="pill-btn active" id="adminTabOverview" style="flex: 1; text-align: center;">📊 Overview & Stat</button>
+        <button class="pill-btn" id="adminTabProducts" style="flex: 1; text-align: center;">📦 Kelola Produk</button>
+        <button class="pill-btn" id="adminTabOrders" style="flex: 1; text-align: center;">📑 Pesanan Masuk</button>
+        <button class="pill-btn" id="adminTabUsers" style="flex: 1; text-align: center;">👥 Akun Pengguna</button>
       </div>
     </div>
 
@@ -77,34 +75,37 @@
     <div id="adminViewOverview" class="admin-tab-content">
       <div class="admin-stats-grid">
         <div class="stat-card">
-          <div style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">📦 Total Katalog Barang</div>
+          <div class="stat-title">📦 Total Katalog Barang</div>
           <div class="stat-value" id="statTotalItems">0 Items</div>
         </div>
         <div class="stat-card">
-          <div style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">📑 Total Pesanan Masuk</div>
-          <div class="stat-value" id="statTotalOrders" style="background: linear-gradient(to right, #0284c7, #4f46e5); -webkit-background-clip: text;">0 Orders</div>
+          <div class="stat-title">📑 Total Pesanan Masuk</div>
+          <div class="stat-value" id="statTotalOrders" style="color: #4f46e5;">0 Orders</div>
         </div>
         <div class="stat-card">
-          <div style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">👥 Pelanggan Terdaftar</div>
-          <div class="stat-value" id="statTotalUsers" style="background: linear-gradient(to right, #7c3aed, #4f46e5); -webkit-background-clip: text;">0 Users</div>
+          <div class="stat-title">👥 Pelanggan Terdaftar</div>
+          <div class="stat-value" id="statTotalUsers" style="color: #7c3aed;">0 Users</div>
         </div>
         <div class="stat-card">
-          <div style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">💰 Perputaran Omzet Transaksi</div>
-          <div class="stat-value" id="statTotalRevenue" style="background: linear-gradient(to right, #059669, #10b981); -webkit-background-clip: text;">Rp 0</div>
+          <div class="stat-title">💰 Perputaran Omzet Transaksi</div>
+          <div class="stat-value" id="statTotalRevenue" style="color: #059669;">Rp 0</div>
         </div>
       </div>
 
-      <div class="hero-card" style="padding: 2rem; border-color: #c7d2fe;">
-        <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.5rem; color: #4338ca;">💡 Selamat Datang di Panel Pengelola</h3>
-        <p style="color: var(--text-muted); font-size: 0.95rem;">Gunakan tab di atas untuk mengelola modul secara rapi. Pilih <strong>"Kelola Produk"</strong> untuk menambah/mengedit barang jastip, <strong>"Pesanan Masuk"</strong> untuk memperbarui status pesanan, atau <strong>"Akun Pengguna"</strong> untuk melihat rekap Gmail terdaftar.</p>
+      <div class="hero-card" style="padding: 2.2rem; border-color: #c7d2fe; background: #ffffff;">
+        <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 0.6rem; color: #4338ca;">💡 Selamat Datang di Panel Pengelola</h3>
+        <p style="color: #475569; font-size: 0.98rem; line-height: 1.6;">Gunakan tab navigasi di atas untuk mengelola sistem secara terstruktur. Anda dapat menambah atau mengedit produk di tab <strong>"Kelola Produk"</strong>, memperbarui status pengiriman di tab <strong>"Pesanan Masuk"</strong>, atau memantau daftar WhatsApp pelanggan di tab <strong>"Akun Pengguna"</strong>.</p>
       </div>
     </div>
 
     <!-- TAB 2: Catalog Management Section -->
     <div id="adminViewProducts" class="admin-tab-content" style="display: none;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; flex-wrap: wrap; gap: 1rem;">
-        <h2 style="font-size: 1.35rem; font-weight: 800;">📦 Kelola Katalog Produk (CRUD)</h2>
-        <button class="btn btn-primary" id="addNewProductBtn">➕ Tambah Produk Baru</button>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.4rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2 style="font-size: 1.4rem; font-weight: 800; color: #0f172a;">📦 Kelola Katalog Produk</h2>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Tambah, edit, atau hapus produk jastip makanan dan peralatan kuliah.</p>
+        </div>
+        <button class="btn btn-primary" id="addNewProductBtn" style="padding: 0.8rem 1.5rem;">➕ Tambah Produk Baru</button>
       </div>
       <div class="table-wrapper">
         <table class="custom-table">
@@ -116,7 +117,7 @@
               <th>Harga Asli</th>
               <th>Jastip Fee</th>
               <th>Total Bayar</th>
-              <th>Aksi</th>
+              <th style="text-align: center;">Aksi</th>
             </tr>
           </thead>
           <tbody id="adminProductTableBody">
@@ -128,7 +129,10 @@
 
     <!-- TAB 3: Orders Management Section -->
     <div id="adminViewOrders" class="admin-tab-content" style="display: none;">
-      <h2 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 1.2rem;">📑 Kelola Pesanan & Status Pembeli</h2>
+      <div style="margin-bottom: 1.4rem;">
+        <h2 style="font-size: 1.4rem; font-weight: 800; color: #0f172a;">📑 Kelola Pesanan & Status Pembeli</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Perbarui status transaksi titipan mahasiswa (Pending, Dibeli, Dikirim, Selesai).</p>
+      </div>
       <div class="table-wrapper">
         <table class="custom-table">
           <thead>
@@ -139,7 +143,7 @@
               <th>Total Biaya</th>
               <th>Status Pesanan</th>
               <th>Catatan COD / Kost</th>
-              <th>Aksi</th>
+              <th style="text-align: center;">Aksi</th>
             </tr>
           </thead>
           <tbody id="adminOrderTableBody">
@@ -151,7 +155,10 @@
 
     <!-- TAB 4: Registered Users Management Section -->
     <div id="adminViewUsers" class="admin-tab-content" style="display: none;">
-      <h2 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 1.2rem;">👥 Daftar Akun Pengguna / Gmail Terdaftar</h2>
+      <div style="margin-bottom: 1.4rem;">
+        <h2 style="font-size: 1.4rem; font-weight: 800; color: #0f172a;">👥 Daftar Akun Pengguna Terdaftar</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Rekap data mahasiswa yang terdaftar di sistem beserta kontak WhatsApp.</p>
+      </div>
       <div class="table-wrapper">
         <table class="custom-table">
           <thead>
@@ -159,7 +166,7 @@
               <th>Nama Pengguna</th>
               <th>Email Gmail / Kampus</th>
               <th>Kontak WhatsApp</th>
-              <th>Total Pesanan</th>
+              <th style="text-align: center;">Total Pesanan</th>
             </tr>
           </thead>
           <tbody id="adminUserTableBody">

@@ -1,4 +1,4 @@
-// Admin Portal State & Multi-Admin Authentication Logic
+// Executive Admin Portal Logic & Multi-Admin Authentication
 let products = JSON.parse(localStorage.getItem('jastip_products')) || INITIAL_PRODUCTS;
 let orders = JSON.parse(localStorage.getItem('jastip_orders')) || INITIAL_ORDERS;
 let registeredUsers = JSON.parse(localStorage.getItem('jastip_registered_users')) || [
@@ -11,6 +11,15 @@ function saveState() {
   localStorage.setItem('jastip_products', JSON.stringify(products));
   localStorage.setItem('jastip_orders', JSON.stringify(orders));
   localStorage.setItem('jastip_current_admin', JSON.stringify(currentAdmin));
+
+  if (typeof db !== 'undefined' && db) {
+    try {
+      db.ref('products').set(products);
+      db.ref('orders').set(orders);
+    } catch (e) {
+      console.warn("Cloud sync warning:", e);
+    }
+  }
 }
 
 function formatRupiah(amount) {
@@ -87,13 +96,11 @@ function switchAdminTab(tabName) {
 }
 
 function setupAdminEventListeners() {
-  // Tab Switching Handlers
   if (adminTabOverview) adminTabOverview.addEventListener('click', () => switchAdminTab('overview'));
   if (adminTabProducts) adminTabProducts.addEventListener('click', () => switchAdminTab('products'));
   if (adminTabOrders) adminTabOrders.addEventListener('click', () => switchAdminTab('orders'));
   if (adminTabUsers) adminTabUsers.addEventListener('click', () => switchAdminTab('users'));
 
-  // Admin Login Form Handler
   if (adminLoginForm) {
     adminLoginForm.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -112,7 +119,6 @@ function setupAdminEventListeners() {
     });
   }
 
-  // Admin Logout Handler
   if (adminLogoutBtn) {
     adminLogoutBtn.addEventListener('click', () => {
       if (confirm('Keluar dari sesi Admin?')) {
@@ -123,7 +129,6 @@ function setupAdminEventListeners() {
     });
   }
 
-  // Add Product Button
   const addNewProductBtn = document.getElementById('addNewProductBtn');
   if (addNewProductBtn) {
     addNewProductBtn.addEventListener('click', () => {
@@ -136,7 +141,6 @@ function setupAdminEventListeners() {
     });
   }
 
-  // File Input Handler (Convert to Base64)
   if (adminProdFileInput) {
     adminProdFileInput.addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -153,14 +157,12 @@ function setupAdminEventListeners() {
     });
   }
 
-  // Modal Close Buttons
   document.querySelectorAll('.modal-close, .closeModalBtn').forEach(btn => {
     btn.addEventListener('click', () => {
       closeModal(productFormModal);
     });
   });
 
-  // Form Submit
   const productForm = document.getElementById('productForm');
   if (productForm) {
     productForm.addEventListener('submit', handleAdminProductSubmit);
@@ -172,6 +174,7 @@ function renderAdminDashboard() {
 
   registeredUsers = JSON.parse(localStorage.getItem('jastip_registered_users')) || registeredUsers;
   orders = JSON.parse(localStorage.getItem('jastip_orders')) || orders;
+  products = JSON.parse(localStorage.getItem('jastip_products')) || products;
 
   // Update Stats Widgets
   document.getElementById('statTotalItems').textContent = products.length + ' Items';
@@ -180,7 +183,7 @@ function renderAdminDashboard() {
   const totalRevenue = orders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
   document.getElementById('statTotalRevenue').textContent = formatRupiah(totalRevenue);
 
-  // Render Registered Users Table with WhatsApp contact lookup
+  // Render Registered Users Table
   const userTbody = document.getElementById('adminUserTableBody');
   if (userTbody) {
     userTbody.innerHTML = '';
@@ -189,10 +192,10 @@ function renderAdminDashboard() {
       const userWa = userOrders.length > 0 ? userOrders[0].user_wa : '081298765432';
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><strong>👤 ${u.name}</strong></td>
-        <td><span style="color: #60a5fa;">${u.email}</span></td>
-        <td><span style="color: #34d399; font-weight: 600;">📱 ${userWa}</span></td>
-        <td><strong>${userOrders.length} Pesanan</strong></td>
+        <td><strong style="color: #0f172a;">👤 ${u.name}</strong></td>
+        <td><span style="color: #4f46e5; font-weight: 500;">${u.email}</span></td>
+        <td><span style="color: #059669; font-weight: 600; background: #ecfdf5; padding: 4px 12px; border-radius: 20px;">📱 ${userWa}</span></td>
+        <td style="text-align: center;"><strong style="background: #f1f5f9; padding: 4px 12px; border-radius: 20px;">${userOrders.length} Pesanan</strong></td>
       `;
       userTbody.appendChild(tr);
     });
@@ -206,15 +209,17 @@ function renderAdminDashboard() {
       const totalCost = p.price_original + p.jastip_fee;
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><img src="${p.image_url}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;"></td>
-        <td><strong>${p.title}</strong></td>
-        <td>${p.main_category === 'MAKANAN_MINUMAN' ? '🍱 Makanan' : '📚 Peralatan'}</td>
+        <td><img src="${p.image_url}" style="width: 54px; height: 54px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);"></td>
+        <td><strong style="color: #0f172a; font-size: 1rem;">${p.title}</strong></td>
+        <td><span class="category-tag ${p.main_category === 'MAKANAN_MINUMAN' ? 'tag-makanan' : 'tag-peralatan'}" style="position: static;">${p.main_category === 'MAKANAN_MINUMAN' ? '🍕 Makanan' : '📚 Peralatan'}</span></td>
         <td>${formatRupiah(p.price_original)}</td>
-        <td>${formatRupiah(p.jastip_fee)}</td>
-        <td><strong style="color: #34d399;">${formatRupiah(totalCost)}</strong></td>
-        <td>
-          <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.82rem;" onclick="editAdminProduct('${p.id}')">✏️ Edit</button>
-          <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.82rem;" onclick="deleteAdminProduct('${p.id}')">🗑️ Hapus</button>
+        <td style="color: #64748b;">+ ${formatRupiah(p.jastip_fee)}</td>
+        <td><strong style="color: #059669; font-size: 1rem;">${formatRupiah(totalCost)}</strong></td>
+        <td style="text-align: center;">
+          <div style="display: inline-flex; gap: 0.5rem;">
+            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.84rem;" onclick="editAdminProduct('${p.id}')">✏️ Edit</button>
+            <button class="btn btn-danger" style="padding: 6px 12px; font-size: 0.84rem;" onclick="deleteAdminProduct('${p.id}')">🗑️ Hapus</button>
+          </div>
         </td>
       `;
       prodTbody.appendChild(tr);
@@ -228,21 +233,21 @@ function renderAdminDashboard() {
     orders.forEach(o => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><strong style="color: #60a5fa;">${o.order_number}</strong></td>
-        <td><strong>${o.user_name}</strong><br><small style="color: var(--text-muted);">${o.user_wa}</small></td>
-        <td>${o.product_title}</td>
-        <td><strong style="color: #34d399;">${formatRupiah(o.total_amount)}</strong></td>
+        <td><strong style="color: #4f46e5; background: #e0e7ff; padding: 4px 10px; border-radius: 8px; font-size: 0.88rem;">${o.order_number}</strong></td>
+        <td><strong style="color: #0f172a;">${o.user_name}</strong><br><small style="color: #059669; font-weight: 600;">${o.user_wa}</small></td>
+        <td><span style="font-weight: 600;">${o.product_title}</span></td>
+        <td><strong style="color: #059669;">${formatRupiah(o.total_amount)}</strong></td>
         <td>
-          <select class="form-input" style="padding: 5px 8px; font-size: 0.85rem; width: auto;" onchange="updateOrderStatus('${o.id}', this.value)">
-            <option value="PENDING" ${o.status === 'PENDING' ? 'selected' : ''}>PENDING</option>
-            <option value="DIBELI" ${o.status === 'DIBELI' ? 'selected' : ''}>DIBELI</option>
-            <option value="DIKIRIM_COD" ${o.status === 'DIKIRIM_COD' ? 'selected' : ''}>DIKIRIM / COD</option>
-            <option value="SELESAI" ${o.status === 'SELESAI' ? 'selected' : ''}>SELESAI</option>
+          <select class="form-input" style="padding: 6px 10px; font-size: 0.85rem; width: auto; font-weight: 700; border-radius: 20px;" onchange="updateOrderStatus('${o.id}', this.value)">
+            <option value="PENDING" ${o.status === 'PENDING' ? 'selected' : ''}>⏳ PENDING</option>
+            <option value="DIBELI" ${o.status === 'DIBELI' ? 'selected' : ''}>🛍️ DIBELI</option>
+            <option value="DIKIRIM_COD" ${o.status === 'DIKIRIM_COD' ? 'selected' : ''}>🚚 DIKIRIM / COD</option>
+            <option value="SELESAI" ${o.status === 'SELESAI' ? 'selected' : ''}>✅ SELESAI</option>
           </select>
         </td>
-        <td style="max-width: 220px; font-size: 0.85rem; color: var(--text-muted);">${o.delivery_notes}</td>
-        <td>
-          <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.82rem;" onclick="deleteAdminOrder('${o.id}')">🗑️</button>
+        <td style="max-width: 220px; font-size: 0.88rem; color: #64748b;">${o.delivery_notes}</td>
+        <td style="text-align: center;">
+          <button class="btn btn-danger" style="padding: 6px 12px; font-size: 0.84rem;" onclick="deleteAdminOrder('${o.id}')">🗑️ Hapus</button>
         </td>
       `;
       orderTbody.appendChild(tr);
