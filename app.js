@@ -26,6 +26,7 @@ const userGreeting = document.getElementById('userGreeting');
 const logoutBtn = document.getElementById('logoutBtn');
 const myOrdersNavBtn = document.getElementById('myOrdersNavBtn');
 const myOrdersModal = document.getElementById('myOrdersModal');
+const floatingChatBtn = document.getElementById('floatingChatBtn');
 
 // Product Detail & Interactive Media Gallery Elements (Photos & Videos)
 const productDetailModal = document.getElementById('productDetailModal');
@@ -57,7 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
   updateUserAuthUI();
   renderProducts();
   setupEventListeners();
-  setupInteractiveHeroEvents();
 });
 
 function initRealtimeCloudSync() {
@@ -155,53 +155,6 @@ function renderProducts() {
     `;
     productsGrid.appendChild(card);
   });
-}
-
-function setupInteractiveHeroEvents() {
-  const heroExploreCtaBtn = document.getElementById('heroExploreCtaBtn');
-  if (heroExploreCtaBtn) {
-    heroExploreCtaBtn.addEventListener('click', () => {
-      const catalogSection = document.getElementById('catalogSection');
-      if (catalogSection) {
-        catalogSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    });
-  }
-
-  const heroPromoTrigger = document.getElementById('heroPromoTrigger');
-  if (heroPromoTrigger) {
-    heroPromoTrigger.addEventListener('click', () => {
-      alert('🎉 PROMO MAHASISWA BARU!\n\nGunakan Layanan JastipKampus hari ini dan dapatkan Potongan Fee Jastip Gratis pada titipan pertama Anda via WhatsApp!');
-    });
-  }
-
-  const pillCodTrigger = document.getElementById('pillCodTrigger');
-  if (pillCodTrigger) {
-    pillCodTrigger.addEventListener('click', () => {
-      alert('🚚 JANGKAUAN COD LENGKAP!\n\nTim kurir JastipKampus siap mengantar pesanan Anda langsung ke Kantin Fakultas UGM/UNY, Perpustakaan Pusat, maupun ke Gerbang Kost Anda!');
-    });
-  }
-
-  const pillFeeTrigger = document.getElementById('pillFeeTrigger');
-  if (pillFeeTrigger) {
-    pillFeeTrigger.addEventListener('click', () => {
-      alert('💰 BIAYA JASTIP TRANSPARAN!\n\nTidak ada biaya tersembunyi. Anda membayar sesuai Harga Asli Struk Toko + Fee Jastip yang tercantum jelas!');
-    });
-  }
-
-  const pillWaTrigger = document.getElementById('pillWaTrigger');
-  if (pillWaTrigger) {
-    pillWaTrigger.addEventListener('click', () => {
-      alert('📱 CHECKOUT PRAKTIS WHATSAPP!\n\nCukup pilih barang, isi lokasi COD, dan sistem akan mengonversi pesanan Anda menjadi rincian rapi siap kirim ke WhatsApp Admin!');
-    });
-  }
-
-  const heroBrandAvatar = document.getElementById('heroBrandAvatar');
-  if (heroBrandAvatar) {
-    heroBrandAvatar.addEventListener('click', () => {
-      alert('🎓 Selamat Datang di Platform JastipKampus!\n\nTeman setia mahasiswa untuk urusan titip makanan dan perlengkapan kuliah. Selamat menelusuri katalog!');
-    });
-  }
 }
 
 function renderMediaInViewer(mediaItem) {
@@ -319,6 +272,15 @@ function setupEventListeners() {
       if (selectedDetailProduct) {
         openOrderModal(selectedDetailProduct.id);
       }
+    });
+  }
+
+  // Floating Live Chat Button Handler
+  if (floatingChatBtn) {
+    floatingChatBtn.addEventListener('click', () => {
+      const adminPhone = '6281234567890';
+      const defaultMsg = encodeURIComponent('Halo Admin JastipKampus! 👋 Saya ingin menanyakan informasi tentang pesanan/titipan barang saya.');
+      window.open(`https://wa.me/${adminPhone}?text=${defaultMsg}`, '_blank');
     });
   }
 
@@ -499,15 +461,18 @@ function renderMyOrders() {
   } else {
     userOrders.forEach(o => {
       const card = document.createElement('div');
-      card.style.cssText = 'background: #f8fafc; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; gap: 1rem;';
+      card.style.cssText = 'background: #f8fafc; border: 1px solid #e2e8f0; padding: 1rem 1.1rem; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;';
       card.innerHTML = `
         <div>
-          <span style="font-size: 0.78rem; font-weight: 700; color: #4f46e5; background: #e0e7ff; padding: 2px 8px; border-radius: 6px;">${o.order_number}</span>
-          <h4 style="font-size: 1rem; font-weight: 800; margin-top: 4px; color: #0f172a;">${o.product_title}</h4>
-          <span style="font-size: 0.88rem; color: #059669; font-weight: 700;">${formatRupiah(o.total_amount)}</span>
+          <span style="font-size: 0.78rem; font-weight: 700; color: #4f46e5; background: #e0e7ff; padding: 3px 10px; border-radius: 6px;">${o.order_number}</span>
+          <h4 style="font-size: 1rem; font-weight: 800; margin-top: 6px; color: #0f172a;">${o.product_title}</h4>
+          <span style="font-size: 0.9rem; color: #059669; font-weight: 700; display: block; margin-top: 2px;">${formatRupiah(o.total_amount)}</span>
         </div>
-        <div>
+        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
           <span class="status-badge status-${o.status.toLowerCase()}">${o.status}</span>
+          <button class="btn btn-secondary" style="padding: 0.4rem 0.85rem; font-size: 0.78rem; border-radius: 8px; background: #25d366; color: white; border: none; font-weight: 700;" onclick="chatAdminAboutOrder('${o.order_number}', '${o.product_title}')">
+            💬 Chat Admin Pesanan
+          </button>
         </div>
       `;
       listContainer.appendChild(card);
@@ -515,6 +480,12 @@ function renderMyOrders() {
   }
   openModal(myOrdersModal);
 }
+
+window.chatAdminAboutOrder = function(orderNum, prodTitle) {
+  const adminPhone = '6281234567890';
+  const msg = encodeURIComponent(`Halo Admin JastipKampus! 👋%0ASaya ingin menanyakan status pesanan saya:%0A%0A📑 *No. Invoice*: ${orderNum}%0A📦 *Barang*: ${prodTitle}%0A%0AMohon info status pengirimannya ya Admin, terima kasih! 🙏`);
+  window.open(`https://wa.me/${adminPhone}?text=${msg}`, '_blank');
+};
 
 function openModal(modal) { if (modal) modal.classList.add('active'); }
 function closeModal(modal) { if (modal) modal.classList.remove('active'); }
