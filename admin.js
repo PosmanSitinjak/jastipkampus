@@ -1,4 +1,4 @@
-// Executive Admin Dashboard JS Logic with 5 Dedicated Media Upload Slots & Live Chat Replier
+// Executive Admin Dashboard JS Logic with Delete Chat Feature & Live Chat Replier
 let products = JSON.parse(localStorage.getItem('jastip_products')) || INITIAL_PRODUCTS;
 let orders = JSON.parse(localStorage.getItem('jastip_orders')) || INITIAL_ORDERS;
 let registeredUsers = JSON.parse(localStorage.getItem('jastip_registered_users')) || [
@@ -28,6 +28,7 @@ const activeChatUserName = document.getElementById('activeChatUserName');
 const adminReplyChatForm = document.getElementById('adminReplyChatForm');
 const adminReplyInput = document.getElementById('adminReplyInput');
 const adminReplySendBtn = document.getElementById('adminReplySendBtn');
+const deleteCurrentChatBtn = document.getElementById('deleteCurrentChatBtn');
 
 // Stat Elements
 const statTotalProducts = document.getElementById('statTotalProducts');
@@ -68,12 +69,27 @@ function initRealtimeCloudSync() {
         renderChatInbox();
         if (activeChatId) {
           const activeObj = webChatsList.find(c => c.id === activeChatId);
-          if (activeObj) renderChatMessageThread(activeObj);
+          if (activeObj) {
+            renderChatMessageThread(activeObj);
+          } else {
+            resetActiveChatView();
+          }
         }
       });
     } catch (e) {
       console.warn("Realtime cloud sync fallback:", e);
     }
+  }
+}
+
+function resetActiveChatView() {
+  activeChatId = null;
+  activeChatUserName.textContent = '💬 Obrolan dengan: Mahasiswa';
+  if (deleteCurrentChatBtn) deleteCurrentChatBtn.style.display = 'none';
+  if (adminReplyInput) adminReplyInput.disabled = true;
+  if (adminReplySendBtn) adminReplySendBtn.disabled = true;
+  if (adminChatMessageThread) {
+    adminChatMessageThread.innerHTML = `<div style="text-align: center; color: #94a3b8; font-size: 0.9rem; padding: 2rem;">Pilih pengguna di sebelah kiri untuk melihat dan membalas obrolan.</div>`;
   }
 }
 
@@ -201,6 +217,7 @@ function selectChatThread(chatId) {
   if (!chat) return;
 
   activeChatUserName.textContent = `💬 Obrolan dengan: ${chat.user_name || 'Pengunjung Web'}`;
+  if (deleteCurrentChatBtn) deleteCurrentChatBtn.style.display = 'inline-flex';
   adminReplyInput.disabled = false;
   adminReplySendBtn.disabled = false;
 
@@ -282,6 +299,25 @@ function setupAdminEventListeners() {
       }
 
       adminReplyInput.value = '';
+    });
+  }
+
+  // Delete Chat Listener
+  if (deleteCurrentChatBtn) {
+    deleteCurrentChatBtn.addEventListener('click', () => {
+      if (!activeChatId) return;
+
+      if (confirm('⚠️ Apakah Anda yakin ingin menghapus seluruh obrolan dengan pengguna ini?')) {
+        if (typeof db !== 'undefined' && db) {
+          try {
+            db.ref('live_chats/' + activeChatId).remove();
+          } catch(err) { console.warn("Delete chat cloud error:", err); }
+        }
+        webChatsList = webChatsList.filter(c => c.id !== activeChatId);
+        resetActiveChatView();
+        renderChatInbox();
+        alert('🗑️ Obrolan berhasil dihapus dari cloud dan inbox!');
+      }
     });
   }
 

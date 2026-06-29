@@ -119,17 +119,19 @@
       </div>
     </div>
 
-    <!-- TAB 4: PESAN & CHAT MASUK (LIVE CHAT REPLIER) -->
+    <!-- TAB 4: PESAN & CHAT MASUK (WITH DELETE CHAT BUTTON) -->
     <div id="tab-chats" class="tab-content" style="display: none;">
       <div style="margin-bottom: 1.5rem;">
         <h3 style="font-size: 1.3rem; font-weight: 800;">💬 Pusat Pesanan & Obrolan Masuk Web</h3>
-        <p style="color: #64748b; font-size: 0.95rem;">Balas obrolan mahasiswa yang dikirim melalui Web Messenger secara realtime.</p>
+        <p style="color: #64748b; font-size: 0.95rem;">Balas atau hapus obrolan mahasiswa yang dikirim melalui Web Messenger secara realtime.</p>
       </div>
 
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
         <!-- Left Box: Chat Inbox List -->
         <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 18px; padding: 1.2rem; box-shadow: 0 4px 14px rgba(0,0,0,0.03);">
-          <h4 style="font-size: 1rem; font-weight: 800; color: #0f172a; margin-bottom: 1rem;">Inbox Obrolan Pengguna</h4>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h4 style="font-size: 1rem; font-weight: 800; color: #0f172a;">Inbox Obrolan Pengguna</h4>
+          </div>
           <div id="adminChatInboxList" style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 420px; overflow-y: auto;">
             <!-- Populated via admin.js -->
           </div>
@@ -137,9 +139,13 @@
 
         <!-- Right Box: Active Conversation Window -->
         <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 18px; padding: 1.4rem; box-shadow: 0 4px 14px rgba(0,0,0,0.03); display: flex; flex-direction: column; height: 460px;">
-          <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 0.85rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between;">
+          <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 0.85rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
             <h4 id="activeChatUserName" style="font-size: 1.05rem; font-weight: 800; color: #0f172a;">💬 Obrolan dengan: Mahasiswa</h4>
-            <span style="font-size: 0.78rem; color: #059669; font-weight: 700; background: #ecfdf5; padding: 3px 10px; border-radius: 12px;">Web Live Chat</span>
+            
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <button class="btn btn-danger" id="deleteCurrentChatBtn" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; border-radius: 8px; display: none;">🗑️ Hapus Obrolan Ini</button>
+              <span style="font-size: 0.78rem; color: #059669; font-weight: 700; background: #ecfdf5; padding: 3px 10px; border-radius: 12px;">Web Live Chat</span>
+            </div>
           </div>
 
           <div id="adminChatMessageThread" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; padding-right: 4px; margin-bottom: 1rem;">
