@@ -391,16 +391,47 @@ function setupEventListeners() {
     });
   }
 
+  // Interactive Reset Password Submit Handler
   if (forgotForm) {
     forgotForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const email = document.getElementById('forgotEmail').value;
-      if (registeredUsers.some(u => u.email === email)) {
-        alert(`📧 Tautan pemulihan kata sandi telah dikirim ke ${email}. Silakan periksa kotak masuk Gmail Anda.`);
-        showAuthView('login');
-      } else {
-        alert('❌ Email tidak ditemukan di sistem kami.');
+      const newPass = document.getElementById('forgotNewPassword').value;
+      const confirmPass = document.getElementById('forgotConfirmPassword').value;
+
+      const userIndex = registeredUsers.findIndex(u => u.email === email);
+      if (userIndex === -1) {
+        alert('❌ Email tidak ditemukan! Pastikan email yang Anda masukkan sudah terdaftar.');
+        return;
       }
+
+      if (newPass !== confirmPass) {
+        alert('❌ Konfirmasi kata sandi tidak cocok! Mohon periksa kembali.');
+        return;
+      }
+
+      if (newPass.length < 4) {
+        alert('❌ Kata sandi baru terlalu pendek! Minimal 4 karakter.');
+        return;
+      }
+
+      // Update password in memory and localStorage
+      registeredUsers[userIndex].password = newPass;
+      localStorage.setItem('jastip_registered_users', JSON.stringify(registeredUsers));
+
+      // If currentUser is resetting their own password, update currentUser as well
+      if (currentUser && currentUser.email === email) {
+        currentUser.password = newPass;
+        localStorage.setItem('jastip_current_user', JSON.stringify(currentUser));
+      }
+
+      alert(`🎉 Kata Sandi Berhasil Diperbarui!\n\nKata sandi akun (${email}) telah diubah. Silakan masuk dengan kata sandi baru Anda.`);
+      
+      // Clear inputs and switch to login view
+      document.getElementById('forgotNewPassword').value = '';
+      document.getElementById('forgotConfirmPassword').value = '';
+      document.getElementById('loginEmail').value = email;
+      showAuthView('login');
     });
   }
 
@@ -430,7 +461,7 @@ function showAuthView(view) {
     authModalTitle.textContent = '📝 Daftar Akun Baru';
     registerForm.style.display = 'block';
   } else if (view === 'forgot') {
-    authModalTitle.textContent = '🔒 Lupa Kata Sandi';
+    authModalTitle.textContent = '🔒 Lupa / Ubah Kata Sandi';
     forgotForm.style.display = 'block';
   }
   openModal(authModal);

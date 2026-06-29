@@ -189,7 +189,7 @@
     </div>
   </div>
 
-  <!-- User Auth Modal (Login / Register / Reset Password) -->
+  <!-- User Auth Modal (Login / Register / Interactive Reset Password) -->
   <div class="modal-overlay" id="authModal">
     <div class="modal-content" style="max-width: 440px;">
       <div class="modal-header">
@@ -236,16 +236,26 @@
         </p>
       </form>
 
-      <!-- VIEW 3: FORGOT PASSWORD FORM -->
+      <!-- VIEW 3: INTERACTIVE RESET PASSWORD FORM -->
       <form id="forgotForm" style="display: none;">
-        <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1.2rem;">Masukkan email terdaftar Anda. Kami akan mengirimkan tautan / petunjuk pemulihan kata sandi.</p>
+        <p style="color: #64748b; font-size: 0.88rem; margin-bottom: 1.2rem; background: #f8fafc; padding: 0.75rem; border-radius: 10px; border: 1px solid #e2e8f0;">
+          💡 Masukkan email terdaftar Anda dan buat kata sandi baru sesuai keinginan Anda.
+        </p>
         <div class="form-group">
           <label class="form-label">Email Terdaftar</label>
-          <input type="email" id="forgotEmail" class="form-input" required placeholder="nama@gmail.com">
+          <input type="email" id="forgotEmail" class="form-input" required placeholder="rian.student@gmail.com">
         </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 1rem;">Kirim Instuksi Pemulihan</button>
+        <div class="form-group">
+          <label class="form-label">Kata Sandi Baru</label>
+          <input type="password" id="forgotNewPassword" class="form-input" required placeholder="Masukkan kata sandi baru">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Konfirmasi Kata Sandi Baru</label>
+          <input type="password" id="forgotConfirmPassword" class="form-input" required placeholder="Ulangi kata sandi baru">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 1rem;">🔄 Perbarui Kata Sandi Saya</button>
         <p style="text-align: center; margin-top: 1.2rem; font-size: 0.9rem; color: #64748b;">
-          Kembali ke <a href="#" id="switchToLoginFromForgotBtn" style="color: #4f46e5; font-weight: 700; text-decoration: none;">Halaman Masuk</a>
+          Ingat kata sandi? <a href="#" id="switchToLoginFromForgotBtn" style="color: #4f46e5; font-weight: 700; text-decoration: none;">Masuk di sini</a>
         </p>
       </form>
 
