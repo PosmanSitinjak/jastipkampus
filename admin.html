@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin - JastipKampus</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Navigation Bar (Admin Portal Only) -->
+  <nav class="navbar">
+    <a href="admin.html" class="logo-container">
+      <img src="logo.jpg" alt="Logo Admin JastipKampus" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #4f46e5; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);">
+      <div>
+        <span class="logo-text" style="background: linear-gradient(to right, #4f46e5, #0891b2); -webkit-background-clip: text;">Admin Panel</span>
+        <span class="logo-badge" style="background: #eff6ff; color: #1d4ed8; border-color: #dbeafe;" id="currentAdminBadge">System Protected</span>
+      </div>
+    </a>
+    <div class="nav-links">
+      <span id="adminInfoLabel" style="font-size: 0.88rem; color: #4338ca; font-weight: 600; display: none;"></span>
+      <button class="btn btn-secondary" id="adminLogoutBtn" style="display: none;">🔒 Logout Admin</button>
+    </div>
+  </nav>
+
+  <!-- Admin Login Gate View (Shown when not logged in as Admin) -->
+  <div id="adminLoginGate" class="container" style="max-width: 450px; margin-top: 4rem;">
+    <div class="hero-card" style="text-align: center; padding: 2.5rem 2rem;">
+      <img src="logo.jpg" alt="Logo Admin JastipKampus" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #4f46e5; box-shadow: 0 8px 24px rgba(79, 70, 229, 0.35); margin-bottom: 1rem;">
+      <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 0.5rem;">Portal Masuk Admin</h2>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">Silakan pilih atau masukkan akun Admin Anda untuk mengelola data toko.</p>
+      
+      <form id="adminLoginForm">
+        <div class="form-group" style="text-align: left;">
+          <label class="form-label">Pilih / Input Akun Admin</label>
+          <select id="adminAccountSelect" class="form-input" style="margin-bottom: 0.75rem;">
+            <option value="admin1">👤 Admin 1</option>
+            <option value="admin2">👤 Admin 2</option>
+          </select>
+        </div>
+        <div class="form-group" style="text-align: left;">
+          <label class="form-label">Kata Sandi Admin</label>
+          <input type="password" id="adminPasswordInput" class="form-input" placeholder="admin123" value="admin123" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 1rem;">
+          🔓 Masuk ke Dashboard Admin
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Main Content (Shown after Admin login) -->
+  <main class="container" id="adminMainDashboard" style="display: none;">
+    
+    <!-- Admin Dashboard Header & Clean Navigation Tabs -->
+    <div style="margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+        <div>
+          <h1 style="font-size: 2rem; font-weight: 800;">🛡️ Dashboard Pengelola Data</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem;">Kelola katalog produk makanan/alat kuliah, pesanan masuk, dan akun pengguna secara terstruktur.</p>
+        </div>
+      </div>
+
+      <!-- Clean Tabbed Navigation Menu for Admin -->
+      <div class="category-pills" style="width: 100%; max-width: 750px;">
+        <button class="pill-btn active" id="adminTabOverview">📊 Overview & Stat</button>
+        <button class="pill-btn" id="adminTabProducts">📦 Kelola Produk</button>
+        <button class="pill-btn" id="adminTabOrders">📑 Pesanan Masuk</button>
+        <button class="pill-btn" id="adminTabUsers">👥 Akun Pengguna</button>
+      </div>
+    </div>
+
+    <!-- TAB 1: Overview & Stats Summary Section -->
+    <div id="adminViewOverview" class="admin-tab-content">
+      <div class="admin-stats-grid">
+        <div class="stat-card">
+          <div style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">📦 Total Katalog Barang</div>
+          <div class="stat-value" id="statTotalItems">0 Items</div>
+        </div>
+        <div class="stat-card">
+          <div style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">📑 Total Pesanan Masuk</div>
+          <div class="stat-value" id="statTotalOrders" style="background: linear-gradient(to right, #0284c7, #4f46e5); -webkit-background-clip: text;">0 Orders</div>
+        </div>
+        <div class="stat-card">
+          <div style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">👥 Pelanggan Terdaftar</div>
+          <div class="stat-value" id="statTotalUsers" style="background: linear-gradient(to right, #7c3aed, #4f46e5); -webkit-background-clip: text;">0 Users</div>
+        </div>
+        <div class="stat-card">
+          <div style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">💰 Perputaran Omzet Transaksi</div>
+          <div class="stat-value" id="statTotalRevenue" style="background: linear-gradient(to right, #059669, #10b981); -webkit-background-clip: text;">Rp 0</div>
+        </div>
+      </div>
+
+      <div class="hero-card" style="padding: 2rem; border-color: #c7d2fe;">
+        <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.5rem; color: #4338ca;">💡 Selamat Datang di Panel Pengelola</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">Gunakan tab di atas untuk mengelola modul secara rapi. Pilih <strong>"Kelola Produk"</strong> untuk menambah/mengedit barang jastip, <strong>"Pesanan Masuk"</strong> untuk memperbarui status pesanan, atau <strong>"Akun Pengguna"</strong> untuk melihat rekap Gmail terdaftar.</p>
+      </div>
+    </div>
+
+    <!-- TAB 2: Catalog Management Section -->
+    <div id="adminViewProducts" class="admin-tab-content" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; flex-wrap: wrap; gap: 1rem;">
+        <h2 style="font-size: 1.35rem; font-weight: 800;">📦 Kelola Katalog Produk (CRUD)</h2>
+        <button class="btn btn-primary" id="addNewProductBtn">➕ Tambah Produk Baru</button>
+      </div>
+      <div class="table-wrapper">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Foto</th>
+              <th>Nama Barang</th>
+              <th>Kategori</th>
+              <th>Harga Asli</th>
+              <th>Jastip Fee</th>
+              <th>Total Bayar</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="adminProductTableBody">
+            <!-- Populated dynamically via admin.js -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 3: Orders Management Section -->
+    <div id="adminViewOrders" class="admin-tab-content" style="display: none;">
+      <h2 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 1.2rem;">📑 Kelola Pesanan & Status Pembeli</h2>
+      <div class="table-wrapper">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>No. Invoice</th>
+              <th>Pembeli (WhatsApp)</th>
+              <th>Barang Titipan</th>
+              <th>Total Biaya</th>
+              <th>Status Pesanan</th>
+              <th>Catatan COD / Kost</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="adminOrderTableBody">
+            <!-- Populated dynamically via admin.js -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 4: Registered Users Management Section -->
+    <div id="adminViewUsers" class="admin-tab-content" style="display: none;">
+      <h2 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 1.2rem;">👥 Daftar Akun Pengguna / Gmail Terdaftar</h2>
+      <div class="table-wrapper">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Nama Pengguna</th>
+              <th>Email Gmail / Kampus</th>
+              <th>Kontak WhatsApp</th>
+              <th>Total Pesanan</th>
+            </tr>
+          </thead>
+          <tbody id="adminUserTableBody">
+            <!-- Populated dynamically via admin.js -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Add/Edit Product Modal -->
+  <div class="modal-overlay" id="productFormModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="font-size: 1.35rem; font-weight: 800;" id="productModalTitle">➕ Tambah Produk Baru</h3>
+        <button class="modal-close closeModalBtn">&times;</button>
+      </div>
+      <form id="productForm">
+        <input type="hidden" id="adminProdId">
+        <div class="form-group">
+          <label class="form-label">Nama Barang</label>
+          <input type="text" id="adminProdTitle" class="form-input" required placeholder="Contoh: Gudeg Kaleng Bu Tjitro">
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <div class="form-group" style="flex: 1;">
+            <label class="form-label">Kategori Utama</label>
+            <select id="adminProdMainCat" class="form-input">
+              <option value="MAKANAN_MINUMAN">🍱 Makanan & Minuman</option>
+              <option value="PERALATAN_KULIAH">📚 Peralatan Kuliah</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label class="form-label">Sub Kategori</label>
+            <input type="text" id="adminProdSubCat" class="form-input" required placeholder="Contoh: Makanan Khas / Alat Lab">
+          </div>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <div class="form-group" style="flex: 1;">
+            <label class="form-label">Harga Asli (Rp)</label>
+            <input type="number" id="adminProdPrice" class="form-input" required placeholder="30000">
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label class="form-label">Fee Jastip (Rp)</label>
+            <input type="number" id="adminProdFee" class="form-input" required placeholder="5000">
+          </div>
+        </div>
+
+        <!-- Direct File Upload Field & Preview -->
+        <div class="form-group">
+          <label class="form-label">Upload Foto Produk dari Komputer</label>
+          <input type="file" id="adminProdFileInput" class="form-input" accept="image/*" style="padding: 0.5rem;">
+          <input type="hidden" id="adminProdImgBase64">
+          <div id="imgPreviewWrapper" style="margin-top: 0.75rem; display: none; align-items: center; gap: 1rem; background: #f1f5f9; padding: 8px; border-radius: 8px;">
+            <img id="imgPreview" src="" alt="Preview" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px;">
+            <span style="font-size: 0.85rem; color: #059669; font-weight: 600;">✓ Foto Siap Diunggah</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Deskripsi Lengkap</label>
+          <textarea id="adminProdDesc" class="form-input" rows="3" required placeholder="Penjelasan barang, isi, daya tahan, dll."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 1rem;">💾 Simpan Produk</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 JastipKampus. Platform Management Portal Admin.</p>
+  </footer>
+
+  <!-- Firebase SDK Libraries -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="data.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
