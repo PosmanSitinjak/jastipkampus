@@ -1,4 +1,4 @@
-// Executive Admin Dashboard JS Logic with Realtime Firebase Sync & Live Chat Replier
+// Executive Admin Dashboard JS Logic with Realtime Firebase Sync, Multi-Media Upload & Live Chat Replier
 let products = JSON.parse(localStorage.getItem('jastip_products')) || INITIAL_PRODUCTS;
 let orders = JSON.parse(localStorage.getItem('jastip_orders')) || INITIAL_ORDERS;
 let registeredUsers = JSON.parse(localStorage.getItem('jastip_registered_users')) || [
@@ -6,6 +6,7 @@ let registeredUsers = JSON.parse(localStorage.getItem('jastip_registered_users')
 ];
 let webChatsList = [];
 let activeChatId = null;
+let currentUploadedMediaItems = [];
 
 function formatRupiah(amount) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(amount);
@@ -284,19 +285,33 @@ function setupAdminEventListeners() {
     });
   }
 
+  // Multi-File Upload Reader (Up to 5 Photos/Videos)
   const prodImageFile = document.getElementById('prodImageFile');
   if (prodImageFile) {
     prodImageFile.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
+      const files = Array.from(e.target.files).slice(0, 5);
+      if (files.length === 0) return;
+
+      currentUploadedMediaItems = [];
+      let loadedCount = 0;
+
+      files.forEach((file) => {
         const reader = new FileReader();
+        const isVideo = file.type.startsWith('video');
+        
         reader.onload = function(event) {
-          document.getElementById('prodImageUrl').value = event.target.result;
-          document.getElementById('imagePreview').src = event.target.result;
-          document.getElementById('imagePreviewContainer').style.display = 'block';
+          currentUploadedMediaItems.push({
+            type: isVideo ? 'video' : 'image',
+            url: event.target.result
+          });
+
+          loadedCount++;
+          if (loadedCount === files.length) {
+            renderMediaPreviewGallery(currentUploadedMediaItems);
+          }
         };
         reader.readAsDataURL(file);
-      }
+      });
     });
   }
 
@@ -304,7 +319,8 @@ function setupAdminEventListeners() {
     openAddProductBtn.addEventListener('click', () => {
       document.getElementById('editProductId').value = '';
       productForm.reset();
-      document.getElementById('imagePreviewContainer').style.display = 'none';
+      currentUploadedMediaItems = [];
+      renderMediaPreviewGallery([]);
       document.getElementById('productModalTitle').textContent = '➕ Tambah Barang Titipan Baru';
       openModal(productModal);
     });
@@ -319,22 +335,33 @@ function setupAdminEventListeners() {
       const subCat = document.getElementById('prodSubCat').value;
       const priceOrig = parseInt(document.getElementById('prodPriceOriginal').value) || 0;
       const fee = parseInt(document.getElementById('prodJastipFee').value) || 0;
-      let imgUrl = document.getElementById('prodImageUrl').value;
       const desc = document.getElementById('prodDesc').value;
 
-      if (!imgUrl) {
-        imgUrl = mainCat === 'MAKANAN_MINUMAN' ? 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80' : 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80';
+      let mediaList = currentUploadedMediaItems.length > 0 ? currentUploadedMediaItems : null;
+      
+      if (!mediaList) {
+        if (editId) {
+          const existingProd = products.find(p => p.id === editId);
+          if (existingProd) mediaList = existingProd.media_items || [{ type: 'image', url: existingProd.image_url }];
+        }
       }
+
+      if (!mediaList || mediaList.length === 0) {
+        const defaultImg = mainCat === 'MAKANAN_MINUMAN' ? 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80' : 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80';
+        mediaList = [{ type: 'image', url: defaultImg }];
+      }
+
+      const primaryImg = mediaList.find(m => m.type === 'image')?.url || mediaList[0].url;
 
       if (editId) {
         const idx = products.findIndex(p => p.id === editId);
         if (idx !== -1) {
-          products[idx] = { ...products[idx], title, main_category: mainCat, sub_category: subCat, price_original: priceOrig, jastip_fee: fee, image_url: imgUrl, description: desc };
+          products[idx] = { ...products[idx], title, main_category: mainCat, sub_category: subCat, price_original: priceOrig, jastip_fee: fee, image_url: primaryImg, media_items: mediaList, description: desc };
         }
       } else {
         const newProd = {
           id: 'prod-' + Date.now(),
-          title, main_category: mainCat, sub_category: subCat, price_original: priceOrig, jastip_fee: fee, image_url: imgUrl, description: desc,
+          title, main_category: mainCat, sub_category: subCat, price_original: priceOrig, jastip_fee: fee, image_url: primaryImg, media_items: mediaList, description: desc,
           source_store: 'Toko Reseller Kampus', weight: 'Sesuai Kemasan', expiry_shelf_life: 'Garansi Segar'
         };
         products.unshift(newProd);
@@ -362,6 +389,32 @@ function setupAdminEventListeners() {
   }
 }
 
+function renderMediaPreviewGallery(mediaItems) {
+  const container = document.getElementById('mediaGalleryPreviewContainer');
+  if (!container) return;
+  container.innerHTML = '';
+
+  if (mediaItems.length === 0) {
+    container.innerHTML = `<span style="color: #94a3b8; font-size: 0.84rem;">Belum ada media dipilih.</span>`;
+    return;
+  }
+
+  mediaItems.forEach((item, idx) => {
+    const box = document.createElement('div');
+    box.style.cssText = 'position: relative; width: 75px; height: 75px; border-radius: 12px; overflow: hidden; border: 2px solid #4f46e5; background: #000;';
+    
+    if (item.type === 'video') {
+      box.innerHTML = `
+        <video src="${item.url}" style="width: 100%; height: 100%; object-fit: cover;"></video>
+        <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; background: rgba(0,0,0,0.6); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem;">▶</span>
+      `;
+    } else {
+      box.innerHTML = `<img src="${item.url}" alt="Preview ${idx+1}" style="width: 100%; height: 100%; object-fit: cover;">`;
+    }
+    container.appendChild(box);
+  });
+}
+
 window.openEditProductModal = function(id) {
   const p = products.find(prod => prod.id === id);
   if (!p) return;
@@ -372,11 +425,10 @@ window.openEditProductModal = function(id) {
   document.getElementById('prodSubCat').value = p.sub_category || '';
   document.getElementById('prodPriceOriginal').value = p.price_original;
   document.getElementById('prodJastipFee').value = p.jastip_fee;
-  document.getElementById('prodImageUrl').value = p.image_url;
   document.getElementById('prodDesc').value = p.description;
 
-  document.getElementById('imagePreview').src = p.image_url;
-  document.getElementById('imagePreviewContainer').style.display = 'block';
+  currentUploadedMediaItems = p.media_items || [{ type: 'image', url: p.image_url }];
+  renderMediaPreviewGallery(currentUploadedMediaItems);
 
   document.getElementById('productModalTitle').textContent = '✏️ Edit Barang Katalog';
   openModal(productModal);
