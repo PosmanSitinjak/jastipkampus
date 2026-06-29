@@ -1,10 +1,17 @@
-// Storefront Logic, Realtime Cloud Sync, Product Gallery (Photos & Videos) & User Auth System
+// Storefront Logic, Realtime Cloud Sync, Product Gallery (Photos & Videos) & Realtime Web Chat System
 let products = JSON.parse(localStorage.getItem('jastip_products')) || INITIAL_PRODUCTS;
 let orders = JSON.parse(localStorage.getItem('jastip_orders')) || INITIAL_ORDERS;
 let registeredUsers = JSON.parse(localStorage.getItem('jastip_registered_users')) || [
   { name: 'Rian Mahasiswa', email: 'rian.student@gmail.com', password: 'password123' }
 ];
 let currentUser = JSON.parse(localStorage.getItem('jastip_current_user')) || null;
+
+// Guest Session ID for Web Chat without Login
+let guestChatId = localStorage.getItem('jastip_guest_chat_id');
+if (!guestChatId) {
+  guestChatId = 'chat-guest-' + Math.floor(1000 + Math.random() * 9000);
+  localStorage.setItem('jastip_guest_chat_id', guestChatId);
+}
 
 let currentCategory = 'ALL';
 let searchQuery = '';
@@ -69,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateUserAuthUI();
   renderProducts();
   setupEventListeners();
-  setupDualChatLogic();
+  setupRealtimeWebChat();
 });
 
 function initRealtimeCloudSync() {
@@ -92,9 +99,86 @@ function initRealtimeCloudSync() {
         }
       });
     } catch (e) {
-      console.warn("Realtime sync fallback to local:", e);
+      console.warn("Realtime cloud sync fallback:", e);
     }
   }
+}
+
+// Setup Realtime Live Web Chat Listener without login requirement
+function setupRealtimeWebChat() {
+  const currentChatId = currentUser ? ('chat-user-' + currentUser.email.replace(/[^a-zA-Z0-9]/g, '')) : guestChatId;
+  const activeName = currentUser ? currentUser.name : ('Tamu ' + guestChatId.replace('chat-guest-', ''));
+
+  if (typeof db !== 'undefined' && db) {
+    try {
+      db.ref('live_chats/' + currentChatId).on('value', (snapshot) => {
+        const chatData = snapshot.val();
+        if (chatData && chatData.messages && webChatMessages) {
+          renderWebChatMessages(chatData.messages);
+        }
+      });
+    } catch (e) {
+      console.warn("Realtime chat listener error:", e);
+    }
+  }
+
+  if (tabWebChatBtn && tabWaChatBtn && webChatContainer && waChatContainer) {
+    tabWebChatBtn.addEventListener('click', () => {
+      tabWebChatBtn.classList.add('active');
+      tabWaChatBtn.classList.remove('active');
+      webChatContainer.style.display = 'flex';
+      waChatContainer.style.display = 'none';
+    });
+
+    tabWaChatBtn.addEventListener('click', () => {
+      tabWaChatBtn.classList.add('active');
+      tabWebChatBtn.classList.remove('active');
+      waChatContainer.style.display = 'flex';
+      webChatContainer.style.display = 'none';
+    });
+  }
+
+  if (webChatForm && webChatInput) {
+    webChatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = webChatInput.value.trim();
+      if (!text) return;
+
+      const timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+      const newMsg = { sender: 'user', text: text, time: timeStr };
+
+      if (typeof db !== 'undefined' && db) {
+        db.ref('live_chats/' + currentChatId).once('value', (snapshot) => {
+          let chatObj = snapshot.val() || { id: currentChatId, user_name: activeName, messages: [] };
+          chatObj.user_name = activeName;
+          if (!chatObj.messages) chatObj.messages = [];
+          chatObj.messages.push(newMsg);
+
+          db.ref('live_chats/' + currentChatId).set(chatObj);
+        });
+      }
+
+      webChatInput.value = '';
+    });
+  }
+}
+
+function renderWebChatMessages(messages) {
+  if (!webChatMessages) return;
+  webChatMessages.innerHTML = '';
+
+  messages.forEach(m => {
+    const msgDiv = document.createElement('div');
+    const isUser = m.sender === 'user';
+    msgDiv.className = isUser ? 'chat-bubble-user' : 'chat-bubble-admin';
+    msgDiv.innerHTML = `
+      <div>${m.text}</div>
+      <span style="font-size: 0.7rem; display: block; text-align: right; margin-top: 4px; opacity: 0.8;">${m.time || ''}</span>
+    `;
+    webChatMessages.appendChild(msgDiv);
+  });
+
+  webChatMessages.scrollTop = webChatMessages.scrollHeight;
 }
 
 // Clean Card Rendering
@@ -169,59 +253,6 @@ function renderProducts() {
   });
 }
 
-function setupDualChatLogic() {
-  if (tabWebChatBtn && tabWaChatBtn && webChatContainer && waChatContainer) {
-    tabWebChatBtn.addEventListener('click', () => {
-      tabWebChatBtn.classList.add('active');
-      tabWaChatBtn.classList.remove('active');
-      webChatContainer.style.display = 'flex';
-      waChatContainer.style.display = 'none';
-    });
-
-    tabWaChatBtn.addEventListener('click', () => {
-      tabWaChatBtn.classList.add('active');
-      tabWebChatBtn.classList.remove('active');
-      waChatContainer.style.display = 'flex';
-      webChatContainer.style.display = 'none';
-    });
-  }
-
-  if (webChatForm && webChatInput && webChatMessages) {
-    webChatForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const text = webChatInput.value.trim();
-      if (!text) return;
-
-      // User Message Bubble
-      const userBubble = document.createElement('div');
-      userBubble.className = 'chat-bubble-user';
-      userBubble.textContent = text;
-      webChatMessages.appendChild(userBubble);
-
-      webChatInput.value = '';
-      webChatMessages.scrollTop = webChatMessages.scrollHeight;
-
-      // Automated Admin Reply Simulator
-      setTimeout(() => {
-        const adminBubble = document.createElement('div');
-        adminBubble.className = 'chat-bubble-admin';
-        
-        const lower = text.toLowerCase();
-        if (lower.includes('status') || lower.includes('pesanan') || lower.includes('cek')) {
-          adminBubble.textContent = "Halo Ka! 👋 Untuk cek status pesanan terkini, Kaka bisa buka menu 'Pesanan Saya' di kanan atas atau klik tab 'Chat via WA' ya!";
-        } else if (lower.includes('ongkir') || lower.includes('biaya') || lower.includes('fee')) {
-          adminBubble.textContent = "Biaya Jastip di JastipKampus 100% transparan Ka! Hanya 1.500 - 10.000 rupiah per barang tergantung jenisnya. Tanpa biaya tersembunyi! 😊";
-        } else {
-          adminBubble.textContent = `Pesan Anda ("${text}") telah diterima oleh Admin CS JastipKampus. Tim kurir kami akan segera memproses informasi titipan Anda! 🙏`;
-        }
-
-        webChatMessages.appendChild(adminBubble);
-        webChatMessages.scrollTop = webChatMessages.scrollHeight;
-      }, 700);
-    });
-  }
-}
-
 function renderMediaInViewer(mediaItem) {
   if (!detailMediaViewer) return;
   detailMediaViewer.innerHTML = '';
@@ -264,7 +295,6 @@ window.openProductDetailModal = function(id) {
   detailJastipFee.textContent = `+ ${formatRupiah(prod.jastip_fee)}`;
   detailGrandTotal.textContent = formatRupiah(prod.price_original + prod.jastip_fee);
 
-  // Setup Media Items
   let mediaList = prod.media_items && prod.media_items.length > 0 ? prod.media_items : [{ type: 'image', url: prod.image_url }];
   
   renderMediaInViewer(mediaList[0]);
@@ -313,7 +343,6 @@ window.openOrderModal = function(id) {
 };
 
 function setupEventListeners() {
-  // Category Filtering Pills
   document.querySelectorAll('.category-pills .pill-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       document.querySelectorAll('.category-pills .pill-btn').forEach(b => b.classList.remove('active'));
@@ -323,7 +352,6 @@ function setupEventListeners() {
     });
   });
 
-  // Search Bar Input
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
       searchQuery = e.target.value;
@@ -331,7 +359,6 @@ function setupEventListeners() {
     });
   }
 
-  // Detail Order WA Button
   if (detailOrderWaBtn) {
     detailOrderWaBtn.addEventListener('click', () => {
       if (selectedDetailProduct) {
@@ -340,7 +367,6 @@ function setupEventListeners() {
     });
   }
 
-  // Floating Live Chat Popup Toggle Handlers
   if (floatingChatBtn && chatPopupWidget) {
     floatingChatBtn.addEventListener('click', () => {
       chatPopupWidget.classList.toggle('active');
@@ -353,7 +379,6 @@ function setupEventListeners() {
     });
   }
 
-  // Checkout Form Submit -> Redirect to WhatsApp Admin
   if (orderForm) {
     orderForm.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -391,7 +416,6 @@ function setupEventListeners() {
 
       closeModal(orderModal);
 
-      // Construct WhatsApp String
       const adminPhone = '6281234567890';
       const textMsg = `Halo Admin JastipKampus! 👋%0ASaya ingin memesan jastip barang berikut:%0A%0A📦 *Barang Titipan*: ${encodeURIComponent(prod.title)}%0A📑 *No. Invoice*: ${orderNum}%0A💰 *Total Bayar*: ${encodeURIComponent(formatRupiah(totalCost))}%0A👤 *Nama Pemesan*: ${encodeURIComponent(userName)}%0A📱 *No. WA*: ${encodeURIComponent(userWa)}%0A📍 *Catatan COD / Kost*: ${encodeURIComponent(notes)}%0A%0AMohon diproses ya Admin, terima kasih! 🙏`;
       
@@ -400,7 +424,6 @@ function setupEventListeners() {
     });
   }
 
-  // Modals Close Buttons
   document.querySelectorAll('.modal-close, .closeModalBtn').forEach(btn => {
     btn.addEventListener('click', () => {
       closeModal(orderModal);
@@ -410,7 +433,6 @@ function setupEventListeners() {
     });
   });
 
-  // Auth Modals Event Listeners
   if (openAuthModalBtn) openAuthModalBtn.addEventListener('click', () => showAuthView('login'));
   if (switchToRegisterBtn) switchToRegisterBtn.addEventListener('click', () => showAuthView('register'));
   if (switchToLoginFromRegBtn) switchToLoginFromRegBtn.addEventListener('click', () => showAuthView('login'));
@@ -430,6 +452,7 @@ function setupEventListeners() {
         updateUserAuthUI();
         closeModal(authModal);
         alert(`👋 Selamat Datang kembali, ${currentUser.name}!`);
+        setupRealtimeWebChat();
       } else {
         alert('❌ Email atau Kata Sandi Salah!');
       }
@@ -457,10 +480,10 @@ function setupEventListeners() {
       updateUserAuthUI();
       closeModal(authModal);
       alert(`🎉 Pendaftaran Akun Berhasil!\n\nSelamat datang di JastipKampus, ${name}!`);
+      setupRealtimeWebChat();
     });
   }
 
-  // Interactive Reset Password Submit Handler
   if (forgotForm) {
     forgotForm.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -507,6 +530,7 @@ function setupEventListeners() {
       localStorage.removeItem('jastip_current_user');
       updateUserAuthUI();
       alert('🔒 Anda telah keluar dari akun.');
+      setupRealtimeWebChat();
     });
   }
 

@@ -4,17 +4,7 @@ let orders = JSON.parse(localStorage.getItem('jastip_orders')) || INITIAL_ORDERS
 let registeredUsers = JSON.parse(localStorage.getItem('jastip_registered_users')) || [
   { name: 'Rian Mahasiswa', email: 'rian.student@gmail.com', password: 'password123' }
 ];
-let webChats = JSON.parse(localStorage.getItem('jastip_web_chats')) || [
-  {
-    id: 'chat-1',
-    user_name: 'Rian Mahasiswa',
-    messages: [
-      { sender: 'user', text: 'Halo Min! Stok Jus janda hari ini masih ada gak ya?', time: '16.30' },
-      { sender: 'admin', text: 'Halo Ka Rian! Masih ada ya, siap diproses dan diantar!', time: '16.32' }
-    ]
-  }
-];
-
+let webChatsList = [];
 let activeChatId = null;
 
 function formatRupiah(amount) {
@@ -71,12 +61,13 @@ function initRealtimeCloudSync() {
         }
       });
 
-      db.ref('chats').on('value', (snapshot) => {
-        const cloudChats = snapshot.val();
-        if (cloudChats && Array.isArray(cloudChats)) {
-          webChats = cloudChats;
-          localStorage.setItem('jastip_web_chats', JSON.stringify(webChats));
-          renderChatInbox();
+      db.ref('live_chats').on('value', (snapshot) => {
+        const cloudChatsObj = snapshot.val() || {};
+        webChatsList = Object.values(cloudChatsObj);
+        renderChatInbox();
+        if (activeChatId) {
+          const activeObj = webChatsList.find(c => c.id === activeChatId);
+          if (activeObj) renderChatMessageThread(activeObj);
         }
       });
     } catch (e) {
@@ -176,12 +167,12 @@ function renderChatInbox() {
   if (!adminChatInboxList) return;
   adminChatInboxList.innerHTML = '';
 
-  if (webChats.length === 0) {
-    adminChatInboxList.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 1rem;">Belum ada percakapan masuk.</div>`;
+  if (webChatsList.length === 0) {
+    adminChatInboxList.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 1.5rem;">Belum ada percakapan masuk dari pengunjung/mahasiswa.</div>`;
     return;
   }
 
-  webChats.forEach(c => {
+  webChatsList.forEach(c => {
     const lastMsg = c.messages && c.messages.length > 0 ? c.messages[c.messages.length - 1] : { text: 'Belum ada pesan', time: '' };
     const activeStyle = c.id === activeChatId ? 'border-color: #4f46e5; background: #eff6ff;' : 'border-color: #e2e8f0; background: #f8fafc;';
     
@@ -190,7 +181,7 @@ function renderChatInbox() {
     item.onclick = () => selectChatThread(c.id);
     item.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-        <strong style="font-size: 0.92rem; color: #0f172a;">👤 ${c.user_name}</strong>
+        <strong style="font-size: 0.92rem; color: #0f172a;">💬 ${c.user_name || 'Pengunjung Web'}</strong>
         <span style="font-size: 0.75rem; color: #64748b;">${lastMsg.time || ''}</span>
       </div>
       <p style="font-size: 0.82rem; color: #475569; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0;">
@@ -205,10 +196,10 @@ function selectChatThread(chatId) {
   activeChatId = chatId;
   renderChatInbox();
 
-  const chat = webChats.find(c => c.id === chatId);
+  const chat = webChatsList.find(c => c.id === chatId);
   if (!chat) return;
 
-  activeChatUserName.textContent = `💬 Obrolan dengan: ${chat.user_name}`;
+  activeChatUserName.textContent = `💬 Obrolan dengan: ${chat.user_name || 'Pengunjung Web'}`;
   adminReplyInput.disabled = false;
   adminReplySendBtn.disabled = false;
 
@@ -218,6 +209,11 @@ function selectChatThread(chatId) {
 function renderChatMessageThread(chat) {
   if (!adminChatMessageThread) return;
   adminChatMessageThread.innerHTML = '';
+
+  if (!chat.messages || chat.messages.length === 0) {
+    adminChatMessageThread.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 2rem;">Belum ada pesan.</div>`;
+    return;
+  }
 
   chat.messages.forEach(m => {
     const msgDiv = document.createElement('div');
@@ -250,7 +246,6 @@ function renderUsersTable() {
 }
 
 function setupAdminEventListeners() {
-  // Navigation Tabs Switching (5 Tabs)
   document.querySelectorAll('.admin-tab-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
@@ -263,7 +258,6 @@ function setupAdminEventListeners() {
     });
   });
 
-  // Admin Reply Form Submit Handler
   if (adminReplyChatForm) {
     adminReplyChatForm.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -272,27 +266,24 @@ function setupAdminEventListeners() {
       const replyText = adminReplyInput.value.trim();
       if (!replyText) return;
 
-      const chatIndex = webChats.findIndex(c => c.id === activeChatId);
-      if (chatIndex !== -1) {
-        const timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-        webChats[chatIndex].messages.push({
-          sender: 'admin',
-          text: replyText,
-          time: timeStr
+      const timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+      const replyMsg = { sender: 'admin', text: replyText, time: timeStr };
+
+      if (typeof db !== 'undefined' && db) {
+        db.ref('live_chats/' + activeChatId).once('value', (snapshot) => {
+          let chatObj = snapshot.val();
+          if (chatObj) {
+            if (!chatObj.messages) chatObj.messages = [];
+            chatObj.messages.push(replyMsg);
+            db.ref('live_chats/' + activeChatId).set(chatObj);
+          }
         });
-
-        localStorage.setItem('jastip_web_chats', JSON.stringify(webChats));
-        if (typeof db !== 'undefined' && db) {
-          try { db.ref('chats').set(webChats); } catch(err) {}
-        }
-
-        adminReplyInput.value = '';
-        selectChatThread(activeChatId);
       }
+
+      adminReplyInput.value = '';
     });
   }
 
-  // File Upload Reader Preview
   const prodImageFile = document.getElementById('prodImageFile');
   if (prodImageFile) {
     prodImageFile.addEventListener('change', (e) => {
