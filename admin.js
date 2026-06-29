@@ -1,4 +1,4 @@
-// Executive Admin Dashboard JS Logic with Delete Chat Feature & Live Chat Replier
+// Executive Admin Dashboard JS Logic with Easy Direct Delete Chat Buttons & Live Chat Replier
 let products = JSON.parse(localStorage.getItem('jastip_products')) || INITIAL_PRODUCTS;
 let orders = JSON.parse(localStorage.getItem('jastip_orders')) || INITIAL_ORDERS;
 let registeredUsers = JSON.parse(localStorage.getItem('jastip_registered_users')) || [
@@ -194,20 +194,39 @@ function renderChatInbox() {
     const activeStyle = c.id === activeChatId ? 'border-color: #4f46e5; background: #eff6ff;' : 'border-color: #e2e8f0; background: #f8fafc;';
     
     const item = document.createElement('div');
-    item.style.cssText = `padding: 0.85rem; border-radius: 12px; border: 2px solid; cursor: pointer; transition: all 0.2s ease; ${activeStyle}`;
-    item.onclick = () => selectChatThread(c.id);
+    item.style.cssText = `padding: 0.85rem; border-radius: 12px; border: 2px solid; cursor: pointer; transition: all 0.2s ease; position: relative; ${activeStyle}`;
+    item.onclick = (e) => {
+      if (e.target.classList.contains('delete-chat-item-btn')) return;
+      selectChatThread(c.id);
+    };
     item.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; padding-right: 24px;">
         <strong style="font-size: 0.92rem; color: #0f172a;">💬 ${c.user_name || 'Pengunjung Web'}</strong>
         <span style="font-size: 0.75rem; color: #64748b;">${lastMsg.time || ''}</span>
       </div>
-      <p style="font-size: 0.82rem; color: #475569; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0;">
+      <p style="font-size: 0.82rem; color: #475569; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; padding-right: 24px;">
         ${lastMsg.sender === 'admin' ? '<strong>Anda:</strong> ' : ''}${lastMsg.text}
       </p>
+      <button class="delete-chat-item-btn" title="Hapus Obrolan Ini" onclick="deleteSingleChatDirect('${c.id}', event)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; transition: all 0.2s ease;">🗑️</button>
     `;
     adminChatInboxList.appendChild(item);
   });
 }
+
+window.deleteSingleChatDirect = function(chatId, event) {
+  if (event) event.stopPropagation();
+  if (confirm('⚠️ Apakah Anda yakin ingin menghapus obrolan ini dari daftar?')) {
+    if (typeof db !== 'undefined' && db) {
+      try {
+        db.ref('live_chats/' + chatId).remove();
+      } catch(err) { console.warn("Delete chat error:", err); }
+    }
+    webChatsList = webChatsList.filter(c => c.id !== chatId);
+    if (activeChatId === chatId) resetActiveChatView();
+    renderChatInbox();
+    alert('🗑️ Obrolan berhasil dihapus!');
+  }
+};
 
 function selectChatThread(chatId) {
   activeChatId = chatId;
@@ -302,22 +321,10 @@ function setupAdminEventListeners() {
     });
   }
 
-  // Delete Chat Listener
   if (deleteCurrentChatBtn) {
     deleteCurrentChatBtn.addEventListener('click', () => {
       if (!activeChatId) return;
-
-      if (confirm('⚠️ Apakah Anda yakin ingin menghapus seluruh obrolan dengan pengguna ini?')) {
-        if (typeof db !== 'undefined' && db) {
-          try {
-            db.ref('live_chats/' + activeChatId).remove();
-          } catch(err) { console.warn("Delete chat cloud error:", err); }
-        }
-        webChatsList = webChatsList.filter(c => c.id !== activeChatId);
-        resetActiveChatView();
-        renderChatInbox();
-        alert('🗑️ Obrolan berhasil dihapus dari cloud dan inbox!');
-      }
+      deleteSingleChatDirect(activeChatId);
     });
   }
 
