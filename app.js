@@ -1,4 +1,4 @@
-// Storefront Logic, Realtime Cloud Sync, Product Gallery (Photos & Videos) & Realtime Web Chat System
+// Storefront Logic, Realtime Cloud Sync, Product Gallery & Interactive Quantity Counter System
 let products = JSON.parse(localStorage.getItem('jastip_products')) || INITIAL_PRODUCTS;
 let orders = JSON.parse(localStorage.getItem('jastip_orders')) || INITIAL_ORDERS;
 let registeredUsers = JSON.parse(localStorage.getItem('jastip_registered_users')) || [
@@ -16,6 +16,7 @@ if (!guestChatId) {
 let currentCategory = 'ALL';
 let searchQuery = '';
 let selectedDetailProduct = null;
+let currentActiveOrderProduct = null;
 
 function formatRupiah(amount) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(amount);
@@ -36,6 +37,11 @@ const myOrdersModal = document.getElementById('myOrdersModal');
 const floatingChatBtn = document.getElementById('floatingChatBtn');
 const chatPopupWidget = document.getElementById('chatPopupWidget');
 const closeChatPopupBtn = document.getElementById('closeChatPopupBtn');
+
+// Quantity Counter Elements
+const orderQuantity = document.getElementById('orderQuantity');
+const btnMinusQty = document.getElementById('btnMinusQty');
+const btnPlusQty = document.getElementById('btnPlusQty');
 
 // Dual Mode Chat Elements
 const tabWebChatBtn = document.getElementById('tabWebChatBtn');
@@ -104,7 +110,7 @@ function initRealtimeCloudSync() {
   }
 }
 
-// Setup Realtime Live Web Chat Listener without login requirement
+// Setup Realtime Live Web Chat Listener
 function setupRealtimeWebChat() {
   const currentChatId = currentUser ? ('chat-user-' + currentUser.email.replace(/[^a-zA-Z0-9]/g, '')) : guestChatId;
   const activeName = currentUser ? currentUser.name : ('Tamu ' + guestChatId.replace('chat-guest-', ''));
@@ -234,7 +240,7 @@ function renderProducts() {
             <span style="color: #4f46e5; font-weight: 700;">+ ${formatRupiah(p.jastip_fee)}</span>
           </div>
           <div class="price-grand-total">
-            <span>Total Bayar:</span>
+            <span>Total Satuan:</span>
             <span>${formatRupiah(totalCost)}</span>
           </div>
         </div>
@@ -330,10 +336,12 @@ window.openOrderModal = function(id) {
   const prod = products.find(p => p.id === id);
   if (!prod) return;
 
-  const totalCost = prod.price_original + prod.jastip_fee;
+  currentActiveOrderProduct = prod;
   document.getElementById('orderProductId').value = prod.id;
   document.getElementById('modalProductTitle').textContent = prod.title;
-  document.getElementById('modalProductPrice').textContent = formatRupiah(totalCost);
+  
+  if (orderQuantity) orderQuantity.value = 1;
+  updateModalCalculatedPrice();
 
   if (currentUser) {
     document.getElementById('orderUserName').value = currentUser.name;
@@ -342,7 +350,34 @@ window.openOrderModal = function(id) {
   openModal(orderModal);
 };
 
+function updateModalCalculatedPrice() {
+  if (!currentActiveOrderProduct) return;
+  const qty = parseInt(orderQuantity.value) || 1;
+  const unitPrice = currentActiveOrderProduct.price_original + currentActiveOrderProduct.jastip_fee;
+  const totalPrice = unitPrice * qty;
+  document.getElementById('modalProductPrice').textContent = formatRupiah(totalPrice);
+}
+
 function setupEventListeners() {
+  // Quantity Counter Event Listeners
+  if (btnMinusQty && btnPlusQty && orderQuantity) {
+    btnMinusQty.addEventListener('click', () => {
+      let currentVal = parseInt(orderQuantity.value) || 1;
+      if (currentVal > 1) {
+        orderQuantity.value = currentVal - 1;
+        updateModalCalculatedPrice();
+      }
+    });
+
+    btnPlusQty.addEventListener('click', () => {
+      let currentVal = parseInt(orderQuantity.value) || 1;
+      if (currentVal < 99) {
+        orderQuantity.value = currentVal + 1;
+        updateModalCalculatedPrice();
+      }
+    });
+  }
+
   document.querySelectorAll('.category-pills .pill-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       document.querySelectorAll('.category-pills .pill-btn').forEach(b => b.classList.remove('active'));
@@ -383,6 +418,7 @@ function setupEventListeners() {
     orderForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const prodId = document.getElementById('orderProductId').value;
+      const qty = parseInt(document.getElementById('orderQuantity').value) || 1;
       const userName = document.getElementById('orderUserName').value;
       const userWa = document.getElementById('orderUserWa').value;
       const notes = document.getElementById('orderNotes').value;
@@ -390,14 +426,15 @@ function setupEventListeners() {
       const prod = products.find(p => p.id === prodId);
       if (!prod) return;
 
-      const totalCost = prod.price_original + prod.jastip_fee;
-      const orderNum = 'JST-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.floor(100 + Math.random() * 900);
+      const unitCost = prod.price_original + prod.jastip_fee;
+      const totalCost = unitCost * qty;
+      const orderNum = 'JST-DEL-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.floor(100 + Math.random() * 900);
 
       const newOrder = {
         id: 'ord-' + Date.now(),
         order_number: orderNum,
         product_id: prod.id,
-        product_title: prod.title,
+        product_title: prod.title + ` (x${qty})`,
         user_name: userName,
         user_email: currentUser ? currentUser.email : 'Tamu (Tanpa Akun)',
         user_wa: userWa,
@@ -417,10 +454,10 @@ function setupEventListeners() {
       closeModal(orderModal);
 
       const adminPhone = '6281234567890';
-      const textMsg = `Halo Admin JastipKampus! 👋%0ASaya ingin memesan jastip barang berikut:%0A%0A📦 *Barang Titipan*: ${encodeURIComponent(prod.title)}%0A📑 *No. Invoice*: ${orderNum}%0A💰 *Total Bayar*: ${encodeURIComponent(formatRupiah(totalCost))}%0A👤 *Nama Pemesan*: ${encodeURIComponent(userName)}%0A📱 *No. WA*: ${encodeURIComponent(userWa)}%0A📍 *Catatan COD / Kost*: ${encodeURIComponent(notes)}%0A%0AMohon diproses ya Admin, terima kasih! 🙏`;
+      const textMsg = `Halo Admin JastipKampus IT Del! 👋%0ASaya ingin memesan jastip barang berikut:%0A%0A📦 *Barang Titipan*: ${encodeURIComponent(prod.title)}%0A📊 *Jumlah Porsi / Beli*: ${qty} pcs%0A📑 *No. Invoice*: ${orderNum}%0A💰 *Total Bayar*: ${encodeURIComponent(formatRupiah(totalCost))}%0A👤 *Nama Pemesan*: ${encodeURIComponent(userName)}%0A📱 *No. WA*: ${encodeURIComponent(userWa)}%0A📍 *Catatan Asrama / COD*: ${encodeURIComponent(notes)}%0A%0AMohon diproses ya Admin IT Del, terima kasih! 🙏`;
       
       window.open(`https://wa.me/${adminPhone}?text=${textMsg}`, '_blank');
-      alert(`✅ Pesanan Berhasil dibuat!\n\nNomor Invoice: ${orderNum}\nAnda akan diarahkan ke WhatsApp Admin untuk mengonfirmasi pengiriman.`);
+      alert(`✅ Pesanan Berhasil dibuat!\n\nNomor Invoice: ${orderNum}\nJumlah: ${qty} Pcs/Porsi\nTotal: ${formatRupiah(totalCost)}\n\nAnda akan diarahkan ke WhatsApp Admin untuk mengonfirmasi pengiriman.`);
     });
   }
 
@@ -479,7 +516,7 @@ function setupEventListeners() {
       localStorage.setItem('jastip_current_user', JSON.stringify(currentUser));
       updateUserAuthUI();
       closeModal(authModal);
-      alert(`🎉 Pendaftaran Akun Berhasil!\n\nSelamat datang di JastipKampus, ${name}!`);
+      alert(`🎉 Pendaftaran Akun Berhasil!\n\nSelamat datang di JastipKampus IT Del, ${name}!`);
       setupRealtimeWebChat();
     });
   }
@@ -541,7 +578,7 @@ function setupEventListeners() {
 
 window.openWaTopic = function(topicText) {
   const adminPhone = '6281234567890';
-  const msg = encodeURIComponent(`Halo Admin CS JastipKampus! 👋%0ASaya ingin menanyakan perihal: *${topicText}*.%0A%0AMohon bantuannya ya Min, terima kasih! 🙏`);
+  const msg = encodeURIComponent(`Halo Admin CS JastipKampus IT Del! 👋%0ASaya ingin menanyakan perihal: *${topicText}*.%0A%0AMohon bantuannya ya Min, terima kasih! 🙏`);
   if (chatPopupWidget) chatPopupWidget.classList.remove('active');
   window.open(`https://wa.me/${adminPhone}?text=${msg}`, '_blank');
 };
@@ -552,7 +589,7 @@ function showAuthView(view) {
   forgotForm.style.display = 'none';
 
   if (view === 'login') {
-    authModalTitle.textContent = '🔑 Masuk ke JastipKampus';
+    authModalTitle.textContent = '🔑 Masuk ke JastipKampus IT Del';
     loginForm.style.display = 'block';
   } else if (view === 'register') {
     authModalTitle.textContent = '📝 Daftar Akun Baru';
@@ -611,7 +648,7 @@ function renderMyOrders() {
 
 window.chatAdminAboutOrder = function(orderNum, prodTitle) {
   const adminPhone = '6281234567890';
-  const msg = encodeURIComponent(`Halo Admin JastipKampus! 👋%0ASaya ingin menanyakan status pesanan saya:%0A%0A📑 *No. Invoice*: ${orderNum}%0A📦 *Barang*: ${prodTitle}%0A%0AMohon info status pengirimannya ya Admin, terima kasih! 🙏`);
+  const msg = encodeURIComponent(`Halo Admin JastipKampus IT Del! 👋%0ASaya ingin menanyakan status pesanan saya:%0A%0A📑 *No. Invoice*: ${orderNum}%0A📦 *Barang*: ${prodTitle}%0A%0AMohon info status pengirimannya ya Admin, terima kasih! 🙏`);
   window.open(`https://wa.me/${adminPhone}?text=${msg}`, '_blank');
 };
 
