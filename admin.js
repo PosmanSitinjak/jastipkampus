@@ -1,4 +1,4 @@
-// Executive Admin Dashboard JS Logic - Strictly Restricted to Admin1 & Admin2
+// Executive Admin Dashboard JS Logic - Strictly Restricted to Admin1 & Admin2 (Clean Professional Look)
 let products = JSON.parse(localStorage.getItem('jastip_products')) || INITIAL_PRODUCTS;
 let orders = JSON.parse(localStorage.getItem('jastip_orders')) || INITIAL_ORDERS;
 let registeredUsers = JSON.parse(localStorage.getItem('jastip_registered_users')) || [
@@ -49,7 +49,7 @@ function checkAdminAuth() {
   if (authedUser === 'admin1' || authedUser === 'admin2') {
     if (adminLoginGate) adminLoginGate.style.display = 'none';
     if (adminMainDashboard) adminMainDashboard.style.display = 'block';
-    if (adminGreeting) adminGreeting.textContent = `👤 ${authedUser.toUpperCase()} Active`;
+    if (adminGreeting) adminGreeting.textContent = `Admin: ${authedUser.toUpperCase()}`;
     initRealtimeCloudSync();
     renderDashboard();
     setupAdminEventListeners();
@@ -70,10 +70,10 @@ function setupLoginGateListener() {
       // Strictly allow ONLY admin1 and admin2
       if ((u === 'admin1' || u === 'admin2') && p === 'admin123') {
         sessionStorage.setItem('jastip_admin_authed_user', u);
-        alert(`🔓 Login Admin Berhasil! Selamat Datang ${u.toUpperCase()} di Executive Dashboard IT Del.`);
+        alert(`Login Admin Berhasil! Selamat Datang ${u.toUpperCase()} di Executive Dashboard IT Del.`);
         checkAdminAuth();
       } else {
-        alert('❌ Akses Ditolak! Akun resmi Admin hanya "admin1" dan "admin2" dengan kata sandi yang benar.');
+        alert('Akses Ditolak! Akun resmi Admin hanya "admin1" dan "admin2" dengan kata sandi yang benar.');
       }
     });
   }
@@ -121,7 +121,7 @@ function initRealtimeCloudSync() {
 
 function resetActiveChatView() {
   activeChatId = null;
-  activeChatUserName.textContent = '💬 Obrolan dengan: Mahasiswa';
+  activeChatUserName.textContent = 'Obrolan dengan: Mahasiswa';
   if (deleteCurrentChatBtn) deleteCurrentChatBtn.style.display = 'none';
   if (adminReplyInput) adminReplyInput.disabled = true;
   if (adminReplySendBtn) adminReplySendBtn.disabled = true;
@@ -170,8 +170,8 @@ function renderProductsTable() {
       <td style="color: #059669; font-weight: 800;">${formatRupiah(totalCost)}</td>
       <td style="text-align: center;">
         <div style="display: flex; gap: 0.4rem; justify-content: center;">
-          <button class="btn btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;" onclick="openEditProductModal('${p.id}')">✏️ Edit</button>
-          <button class="btn btn-danger" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;" onclick="deleteProduct('${p.id}')">🗑️ Hapus</button>
+          <button class="btn btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;" onclick="openEditProductModal('${p.id}')">Edit</button>
+          <button class="btn btn-danger" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;" onclick="deleteProduct('${p.id}')">Hapus</button>
         </div>
       </td>
     `;
@@ -199,17 +199,17 @@ function renderOrdersTable() {
       <td style="font-weight: 700; color: #334155;">${o.product_title}</td>
       <td style="font-weight: 800; color: #059669;">${formatRupiah(o.total_amount)}</td>
       <td>
-        <a href="https://wa.me/${o.user_wa.replace(/[^0-9]/g,'')}" target="_blank" style="color: #059669; font-weight: 700; text-decoration: none; background: #ecfdf5; padding: 4px 10px; border-radius: 8px; border: 1px solid #a7f3d0; display: inline-flex; align-items: center; gap: 4px;">
-          📱 ${o.user_wa}
+        <a href="https://wa.me/${o.user_wa.replace(/[^0-9]/g,'')}" target="_blank" style="color: #059669; font-weight: 700; text-decoration: none; background: #ecfdf5; padding: 6px 14px; border-radius: 8px; border: 1px solid #a7f3d0; display: inline-block; font-size: 0.9rem;">
+          ${o.user_wa}
         </a>
       </td>
       <td style="max-width: 200px; font-size: 0.84rem; color: #475569;">${o.delivery_notes || '-'}</td>
       <td>
         <select class="status-select" onchange="updateOrderStatus('${o.id}', this.value)">
-          <option value="PENDING" ${o.status === 'PENDING' ? 'selected' : ''}>⏳ PENDING</option>
-          <option value="PROSES" ${o.status === 'PROSES' ? 'selected' : ''}>🚴 PROSES DIBELI</option>
-          <option value="SELESAI" ${o.status === 'SELESAI' ? 'selected' : ''}>✅ SELESAI COD</option>
-          <option value="BATAL" ${o.status === 'BATAL' ? 'selected' : ''}>❌ BATAL</option>
+          <option value="PENDING" ${o.status === 'PENDING' ? 'selected' : ''}>PENDING</option>
+          <option value="PROSES" ${o.status === 'PROSES' ? 'selected' : ''}>PROSES DIBELI</option>
+          <option value="SELESAI" ${o.status === 'SELESAI' ? 'selected' : ''}>SELESAI COD</option>
+          <option value="BATAL" ${o.status === 'BATAL' ? 'selected' : ''}>BATAL</option>
         </select>
       </td>
     `;
@@ -238,13 +238,13 @@ function renderChatInbox() {
     };
     item.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; padding-right: 24px;">
-        <strong style="font-size: 0.92rem; color: #0f172a;">💬 ${c.user_name || 'Pengunjung Web'}</strong>
+        <strong style="font-size: 0.92rem; color: #0f172a;">${c.user_name || 'Pengunjung Web'}</strong>
         <span style="font-size: 0.75rem; color: #64748b;">${lastMsg.time || ''}</span>
       </div>
       <p style="font-size: 0.82rem; color: #475569; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; padding-right: 24px;">
         ${lastMsg.sender === 'admin' ? '<strong>Anda:</strong> ' : ''}${lastMsg.text}
       </p>
-      <button class="delete-chat-item-btn" title="Hapus Obrolan Ini" onclick="deleteSingleChatDirect('${c.id}', event)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; transition: all 0.2s ease;">🗑️</button>
+      <button class="delete-chat-item-btn" title="Hapus Obrolan Ini" onclick="deleteSingleChatDirect('${c.id}', event)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; transition: all 0.2s ease;">✕</button>
     `;
     adminChatInboxList.appendChild(item);
   });
@@ -252,7 +252,7 @@ function renderChatInbox() {
 
 window.deleteSingleChatDirect = function(chatId, event) {
   if (event) event.stopPropagation();
-  if (confirm('⚠️ Apakah Anda yakin ingin menghapus obrolan ini dari daftar?')) {
+  if (confirm('Apakah Anda yakin ingin menghapus obrolan ini dari daftar?')) {
     if (typeof db !== 'undefined' && db) {
       try {
         db.ref('live_chats/' + chatId).remove();
@@ -261,7 +261,7 @@ window.deleteSingleChatDirect = function(chatId, event) {
     webChatsList = webChatsList.filter(c => c.id !== chatId);
     if (activeChatId === chatId) resetActiveChatView();
     renderChatInbox();
-    alert('🗑️ Obrolan berhasil dihapus!');
+    alert('Obrolan berhasil dihapus.');
   }
 };
 
@@ -272,7 +272,7 @@ function selectChatThread(chatId) {
   const chat = webChatsList.find(c => c.id === chatId);
   if (!chat) return;
 
-  activeChatUserName.textContent = `💬 Obrolan dengan: ${chat.user_name || 'Pengunjung Web'}`;
+  activeChatUserName.textContent = `Obrolan dengan: ${chat.user_name || 'Pengunjung Web'}`;
   if (deleteCurrentChatBtn) deleteCurrentChatBtn.style.display = 'inline-flex';
   adminReplyInput.disabled = false;
   adminReplySendBtn.disabled = false;
@@ -311,9 +311,9 @@ function renderUsersTable() {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${idx + 1}</td>
-      <td style="font-weight: 700; color: #0f172a;">👤 ${u.name}</td>
+      <td style="font-weight: 700; color: #0f172a;">${u.name}</td>
       <td style="color: #4338ca;">${u.email}</td>
-      <td><span class="status-badge" style="background: #ecfdf5; color: #047857; font-weight: 700;">🟢 Aktif Terdaftar</span></td>
+      <td><span class="status-badge" style="background: #ecfdf5; color: #047857; font-weight: 700;">Aktif Terdaftar</span></td>
     `;
     adminUsersTable.appendChild(tr);
   });
@@ -397,7 +397,7 @@ function setupAdminEventListeners() {
       productForm.reset();
       currentUploadedMediaSlots = [null, null, null, null, null];
       renderMediaPreviewGallery([]);
-      document.getElementById('productModalTitle').textContent = '➕ Tambah Barang Titipan Baru';
+      document.getElementById('productModalTitle').textContent = 'Tambah Barang Titipan Baru';
       openModal(productModal);
     });
   }
@@ -450,7 +450,7 @@ function setupAdminEventListeners() {
 
       closeModal(productModal);
       renderDashboard();
-      alert('💾 Katalog Produk Berhasil Disimpan & Tersinkronisasi Cloud!');
+      alert('Katalog Produk Berhasil Disimpan & Tersinkronisasi Cloud.');
     });
   }
 
@@ -461,7 +461,7 @@ function setupAdminEventListeners() {
   if (adminLogoutBtn) {
     adminLogoutBtn.addEventListener('click', () => {
       sessionStorage.removeItem('jastip_admin_authed_user');
-      alert('🔒 Anda telah keluar dari Dashboard Admin.');
+      alert('Anda telah keluar dari Dashboard Admin.');
       checkAdminAuth();
     });
   }
@@ -488,7 +488,6 @@ function renderMediaPreviewGallery(mediaItems) {
     if (item.type === 'video') {
       box.innerHTML = `
         <video src="${item.url}" style="width: 100%; height: 100%; object-fit: cover;"></video>
-        <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; background: rgba(0,0,0,0.6); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem;">▶</span>
       `;
     } else {
       box.innerHTML = `<img src="${item.url}" alt="Preview ${idx+1}" style="width: 100%; height: 100%; object-fit: cover;">`;
@@ -516,12 +515,12 @@ window.openEditProductModal = function(id) {
   });
   renderMediaPreviewGallery(getCombinedMediaList());
 
-  document.getElementById('productModalTitle').textContent = '✏️ Edit Barang Katalog';
+  document.getElementById('productModalTitle').textContent = 'Edit Barang Katalog';
   openModal(productModal);
 };
 
 window.deleteProduct = function(id) {
-  if (confirm('⚠️ Apakah Anda yakin ingin menghapus barang ini dari katalog?')) {
+  if (confirm('Apakah Anda yakin ingin menghapus barang ini dari katalog?')) {
     products = products.filter(p => p.id !== id);
     localStorage.setItem('jastip_products', JSON.stringify(products));
     if (typeof db !== 'undefined' && db) {
@@ -540,7 +539,7 @@ window.updateOrderStatus = function(id, newStatus) {
       try { db.ref('orders').set(orders); } catch(err) {}
     }
     renderStats();
-    alert(`✅ Status Pesanan Invoice ${orders[idx].order_number} berhasil diperbarui menjadi ${newStatus}!`);
+    alert(`Status Pesanan Invoice ${orders[idx].order_number} berhasil diperbarui menjadi ${newStatus}.`);
   }
 };
 
