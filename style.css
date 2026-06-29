@@ -513,7 +513,7 @@ body {
   box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
 }
 
-/* World-Class Admin Nav Tabs Styling */
+/* World-Class Executive Admin Nav Tabs Styling */
 .admin-tab-nav {
   display: flex;
   gap: 0.75rem;
@@ -526,6 +526,7 @@ body {
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   margin-bottom: 2.2rem;
+  width: 100%;
 }
 
 .admin-tab-nav::-webkit-scrollbar { display: none; }
@@ -657,7 +658,6 @@ body {
   text-align: center;
 }
 
-/* Fixed Title Container Height */
 .product-title {
   font-size: 1.1rem;
   font-weight: 800;
@@ -767,7 +767,6 @@ body {
 
 .modal-close:hover { background: #e2e8f0; color: #0f172a; }
 
-/* Modal Action Button Styling Fix for Mobile */
 #detailOrderWaBtn {
   white-space: normal !important;
   word-break: break-word;
@@ -866,7 +865,7 @@ body {
   color: #0f172a;
 }
 
-/* Perfect Full-Width Table System */
+/* Perfect Full-Width Table System for Desktop & Mobile */
 .table-wrapper {
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -875,6 +874,7 @@ body {
   margin-bottom: 2.5rem;
   width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .custom-table {
@@ -958,16 +958,17 @@ footer {
   background: #ffffff;
 }
 
-/* Enhanced Mobile & Desktop Responsiveness */
+/* 📱 ENHANCED FULLY-RESPONSIVE ADMIN & STOREFRONT STYLING */
 @media (min-width: 992px) {
   .table-wrapper { overflow-x: visible; }
   .custom-table { width: 100%; min-width: 0; }
 }
 
 @media (max-width: 768px) {
-  .navbar { padding: 0.85rem 1rem; }
-  .logo-text { font-size: 1.3rem; }
+  .navbar { padding: 0.85rem 1rem; flex-wrap: wrap; gap: 0.5rem; }
+  .logo-text { font-size: 1.25rem; }
   .logo-badge { display: none; }
+  .nav-links { gap: 0.5rem; }
   .container { padding: 1.2rem 0.8rem; }
   
   .hero-card-clean { 
@@ -1005,24 +1006,34 @@ footer {
   }
 
   /* Modal Mobile Precision */
-  .modal-content { padding: 1.5rem 1.1rem; width: 94%; }
+  .modal-content { padding: 1.4rem 1rem; width: 95%; max-height: 94vh; }
   
+  /* Admin Banner & Stats Mobile Grid */
   .admin-header-banner { padding: 1.6rem 1.2rem; text-align: center; border-radius: 18px; }
-  .admin-header-banner h1 { font-size: 1.65rem; }
-  .admin-header-banner p { font-size: 0.9rem; }
+  .admin-header-banner h1 { font-size: 1.6rem; }
+  .admin-header-banner p { font-size: 0.88rem; }
   
   .admin-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.85rem; }
   .stat-card { padding: 1.2rem 1rem; }
-  .stat-title { font-size: 0.76rem; }
-  .stat-value { font-size: 1.6rem; }
+  .stat-title { font-size: 0.74rem; }
+  .stat-value { font-size: 1.5rem; }
 
-  .admin-tab-nav { padding: 6px; gap: 0.5rem; border-radius: 16px; }
-  .admin-tab-btn { padding: 0.75rem 1.2rem; font-size: 0.88rem; }
-  
-  .custom-table { min-width: 650px; }
-  .table-wrapper { overflow-x: auto; }
+  /* Admin Nav Tabs Mobile Horizontal Scrollbar */
+  .admin-tab-nav { padding: 6px; gap: 0.4rem; border-radius: 16px; justify-content: flex-start; }
+  .admin-tab-btn { padding: 0.75rem 1.1rem; font-size: 0.86rem; border-radius: 12px; }
+
+  /* Table Horizontal Touch Scroll */
+  .custom-table { min-width: 720px; }
+  .table-wrapper { overflow-x: auto; border-radius: 14px; }
+
+  /* Admin Chat Tab Responsive Stack */
+  #tab-chats > div:last-child {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 @media (max-width: 480px) {
   .admin-stats-grid { grid-template-columns: 1fr; }
+  .admin-header-banner h1 { font-size: 1.4rem; }
+  .btn { padding: 0.6rem 1rem; font-size: 0.85rem; }
 }
