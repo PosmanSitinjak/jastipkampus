@@ -160,28 +160,25 @@ body {
   width: 44px;
   height: 44px;
   padding: 0;
-  border-radius: 14px;
-  background: #f1f5f9;
-  color: var(--text-main);
-  border: 1px solid #e2e8f0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffffff, #f1f5f9);
+  color: #4f46e5;
+  border: 2px solid #e2e8f0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 1.25rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 .btn-icon-only:hover {
-  background: #e2e8f0;
-  transform: scale(1.05);
-}
-
-.btn-icon-only.logged-in {
-  background: #dcfce7;
-  border-color: #86efac;
-  color: #166534;
-  box-shadow: 0 0 14px rgba(34, 197, 94, 0.25);
+  background: #4f46e5;
+  color: #ffffff;
+  border-color: #4338ca;
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
 }
 
 /* Main Container */
@@ -193,54 +190,93 @@ body {
   flex: 1;
 }
 
-/* Premium Light Hero Banner */
-.hero-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
-  border: 1px solid #e2e8f0;
-  border-radius: var(--radius-lg);
-  padding: 3.5rem 3rem;
+/* Ultra-Eye-Catching Vibrant Hero Banner */
+.hero-card-vibrant {
+  background: linear-gradient(135deg, #312e81 0%, #4338ca 40%, #6366f1 75%, #0284c7 100%);
+  border-radius: 28px;
+  padding: 3.8rem 3.5rem;
   margin-bottom: 2.5rem;
-  box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.07);
+  box-shadow: 0 25px 50px -12px rgba(49, 46, 129, 0.35);
   position: relative;
   overflow: hidden;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
 }
 
-.hero-title {
-  font-size: 2.8rem;
+.hero-card-vibrant::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.hero-content-left {
+  max-width: 680px;
+  z-index: 2;
+}
+
+.hero-promo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 6px 16px;
+  border-radius: 30px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #fef08a;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+}
+
+.hero-title-vibrant {
+  font-size: 2.9rem;
   font-weight: 800;
   line-height: 1.2;
   margin-bottom: 1rem;
   letter-spacing: -0.5px;
-  color: #0f172a;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.15);
 }
 
-.hero-subtitle {
-  color: #475569;
+.hero-subtitle-vibrant {
+  color: #e0e7ff;
   font-size: 1.15rem;
-  max-width: 700px;
   line-height: 1.65;
-  margin-bottom: 1.8rem;
+  margin-bottom: 2rem;
 }
 
-.hero-features {
+.hero-features-vibrant {
   display: flex;
-  gap: 1rem;
+  gap: 0.85rem;
   flex-wrap: wrap;
 }
 
-.feature-pill {
+.feature-pill-vibrant {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 8px 16px;
+  padding: 10px 18px;
   border-radius: 30px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  color: #334155;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  font-size: 0.88rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.95);
+  color: #1e1b4b;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  transition: transform 0.2s ease;
 }
+
+.feature-pill-vibrant:hover { transform: translateY(-3px); }
 
 /* Toolbar Filter & Search */
 .toolbar {
@@ -358,7 +394,7 @@ body {
   color: #94a3b8;
 }
 
-/* Product Responsive Cards Grid (100% Identical Card Size & Perfect Alignment) */
+/* Product Responsive Cards Grid */
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
@@ -425,7 +461,7 @@ body {
   text-align: center;
 }
 
-/* Fixed Title Container Height for 100% Identical Alignment */
+/* Fixed Title Container Height */
 .product-title {
   font-size: 1.1rem;
   font-weight: 800;
@@ -441,9 +477,7 @@ body {
   align-self: center;
 }
 
-.product-desc {
-  display: none; /* Hidden on card for clean grid */
-}
+.product-desc { display: none; }
 
 .price-card {
   background: #f8fafc;
@@ -726,8 +760,8 @@ footer {
   .navbar { padding: 0.9rem 1.2rem; }
   .logo-text { font-size: 1.35rem; }
   .container { padding: 1.2rem 0.8rem; }
-  .hero-card { padding: 2rem 1.2rem; text-align: center; }
-  .hero-title { font-size: 2rem; }
+  .hero-card-vibrant { padding: 2.2rem 1.5rem; text-align: center; flex-direction: column; }
+  .hero-title-vibrant { font-size: 2.1rem; }
   .toolbar { flex-direction: column; align-items: stretch; }
   .category-pills { overflow-x: auto; }
   .search-wrapper { max-width: 100%; min-width: 100%; }
