@@ -86,10 +86,10 @@
         <button class="modal-close closeModalBtn">&times;</button>
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
         
         <!-- Interactive Main Media Viewer Container (Supports Photo & Video) -->
-        <div id="detailMediaViewer" style="width: 100%; height: 300px; border-radius: 18px; overflow: hidden; background: #0f172a; position: relative; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center;">
+        <div id="detailMediaViewer" style="width: 100%; height: 260px; border-radius: 18px; overflow: hidden; background: #0f172a; position: relative; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center;">
           <!-- Dynamically injected img or video via app.js -->
         </div>
 
@@ -99,24 +99,24 @@
         </div>
 
         <div>
-          <h2 id="detailProductTitle" style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem; line-height: 1.3;">-</h2>
-          <p id="detailProductDesc" style="color: #475569; font-size: 0.98rem; line-height: 1.65; margin-bottom: 1.2rem; background: #f8fafc; padding: 1rem; border-radius: 14px; border: 1px solid #e2e8f0;">-</p>
+          <h2 id="detailProductTitle" style="font-size: 1.4rem; font-weight: 800; color: #0f172a; margin-bottom: 0.4rem; line-height: 1.3;">-</h2>
+          <p id="detailProductDesc" style="color: #475569; font-size: 0.95rem; line-height: 1.6; margin-bottom: 1rem; background: #f8fafc; padding: 0.85rem 1rem; border-radius: 14px; border: 1px solid #e2e8f0;">-</p>
         </div>
 
         <!-- Detailed Specifications Box -->
-        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.25rem;">
-          <h4 style="font-size: 0.95rem; font-weight: 800; color: #0f172a; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 0.4rem;">📋 Spesifikasi Lengkap Produk:</h4>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.85rem; font-size: 0.88rem;">
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.1rem;">
+          <h4 style="font-size: 0.92rem; font-weight: 800; color: #0f172a; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.4rem;">📋 Spesifikasi Lengkap Produk:</h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; font-size: 0.86rem;">
             <div>
-              <span style="color: #64748b; display: block; font-size: 0.78rem; text-transform: uppercase; font-weight: 700;">🏪 Toko / Sumber Asli</span>
+              <span style="color: #64748b; display: block; font-size: 0.76rem; text-transform: uppercase; font-weight: 700;">🏪 Toko / Sumber Asli</span>
               <strong id="detailSourceStore" style="color: #334155;">-</strong>
             </div>
             <div>
-              <span style="color: #64748b; display: block; font-size: 0.78rem; text-transform: uppercase; font-weight: 700;">⚖️ Berat / Ukuran</span>
+              <span style="color: #64748b; display: block; font-size: 0.76rem; text-transform: uppercase; font-weight: 700;">⚖️ Berat / Ukuran</span>
               <strong id="detailWeight" style="color: #334155;">-</strong>
             </div>
             <div style="grid-column: 1 / -1;">
-              <span style="color: #64748b; display: block; font-size: 0.78rem; text-transform: uppercase; font-weight: 700;">⏳ Daya Tahan / Ketahanan</span>
+              <span style="color: #64748b; display: block; font-size: 0.76rem; text-transform: uppercase; font-weight: 700;">⏳ Daya Tahan / Ketahanan</span>
               <strong id="detailExpiry" style="color: #334155;">-</strong>
             </div>
           </div>
@@ -138,8 +138,9 @@
           </div>
         </div>
 
-        <button class="btn btn-primary" id="detailOrderWaBtn" style="justify-content: center; padding: 1rem; font-size: 1.05rem; width: 100%;">
-          🛒 Titip Barang Ini Sekarang (Via WhatsApp)
+        <!-- High-Impact Crisp Button (Perfect Fit on All Mobile Screens) -->
+        <button class="btn btn-primary" id="detailOrderWaBtn">
+          🛒 Titip Barang (Via WhatsApp)
         </button>
 
       </div>

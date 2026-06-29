@@ -266,7 +266,7 @@ body {
   font-weight: 600;
   font-size: 0.93rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -468,7 +468,7 @@ body {
   margin-top: 6px;
 }
 
-/* Crisp Modals */
+/* Crisp Modals & Mobile Perfection */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -496,8 +496,8 @@ body {
   border: 1px solid #e2e8f0;
   border-radius: var(--radius-lg);
   width: 92%;
-  max-width: 520px;
-  padding: 2.5rem;
+  max-width: 540px;
+  padding: 2.2rem;
   box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
   max-height: 92vh;
   overflow-y: auto;
@@ -530,6 +530,18 @@ body {
 }
 
 .modal-close:hover { background: #e2e8f0; color: #0f172a; }
+
+/* Modal Action Button Styling Fix for Mobile */
+#detailOrderWaBtn {
+  white-space: normal !important;
+  word-break: break-word;
+  text-align: center;
+  padding: 0.95rem 1rem !important;
+  font-size: 0.95rem !important;
+  line-height: 1.4;
+  border-radius: 16px;
+  width: 100%;
+}
 
 .form-group { margin-bottom: 1.3rem; }
 .form-label { display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 0.5rem; color: #334155; }
@@ -719,10 +731,9 @@ footer {
 @media (max-width: 768px) {
   .navbar { padding: 0.85rem 1rem; }
   .logo-text { font-size: 1.3rem; }
-  .logo-badge { display: none; } /* Hide on mobile so header stays super clean */
+  .logo-badge { display: none; }
   .container { padding: 1.2rem 0.8rem; }
   
-  /* Hero Section Mobile Polish - Hide large circular image on small mobile to avoid cutoff */
   .hero-card-clean { 
     padding: 2rem 1.25rem; 
     text-align: center; 
@@ -741,6 +752,9 @@ footer {
   .search-wrapper { max-width: 100%; min-width: 100%; }
 
   .products-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+
+  /* Modal Mobile Precision */
+  .modal-content { padding: 1.5rem 1.1rem; width: 94%; }
   
   .admin-header-banner { padding: 1.6rem 1.2rem; text-align: center; border-radius: 18px; }
   .admin-header-banner h1 { font-size: 1.65rem; }
