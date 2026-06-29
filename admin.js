@@ -1,4 +1,4 @@
-// Executive Admin Dashboard JS Logic with Secure Admin Login Gate System
+// Executive Admin Dashboard JS Logic - Strictly Restricted to Admin1 & Admin2
 let products = JSON.parse(localStorage.getItem('jastip_products')) || INITIAL_PRODUCTS;
 let orders = JSON.parse(localStorage.getItem('jastip_orders')) || INITIAL_ORDERS;
 let registeredUsers = JSON.parse(localStorage.getItem('jastip_registered_users')) || [
@@ -16,6 +16,7 @@ function formatRupiah(amount) {
 const adminLoginGate = document.getElementById('adminLoginGate');
 const adminLoginForm = document.getElementById('adminLoginForm');
 const adminMainDashboard = document.getElementById('adminMainDashboard');
+const adminGreeting = document.getElementById('adminGreeting');
 const adminProductsTable = document.getElementById('adminProductsTable');
 const adminOrdersTable = document.getElementById('adminOrdersTable');
 const adminUsersTable = document.getElementById('adminUsersTable');
@@ -44,10 +45,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function checkAdminAuth() {
-  const isAuthed = sessionStorage.getItem('jastip_admin_authed') === 'true';
-  if (isAuthed) {
+  const authedUser = sessionStorage.getItem('jastip_admin_authed_user');
+  if (authedUser === 'admin1' || authedUser === 'admin2') {
     if (adminLoginGate) adminLoginGate.style.display = 'none';
     if (adminMainDashboard) adminMainDashboard.style.display = 'block';
+    if (adminGreeting) adminGreeting.textContent = `👤 ${authedUser.toUpperCase()} Active`;
     initRealtimeCloudSync();
     renderDashboard();
     setupAdminEventListeners();
@@ -62,15 +64,16 @@ function setupLoginGateListener() {
   if (adminLoginForm) {
     adminLoginForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const u = document.getElementById('adminUserAuth').value.trim();
+      const u = document.getElementById('adminUserAuth').value.trim().toLowerCase();
       const p = document.getElementById('adminPassAuth').value.trim();
 
-      if ((u === 'admin1' || u === 'admin.itdel') && (p === 'admin123' || p === 'del2026')) {
-        sessionStorage.setItem('jastip_admin_authed', 'true');
-        alert('🔓 Login Admin Berhasil! Selamat Datang di Executive Dashboard IT Del.');
+      // Strictly allow ONLY admin1 and admin2
+      if ((u === 'admin1' || u === 'admin2') && p === 'admin123') {
+        sessionStorage.setItem('jastip_admin_authed_user', u);
+        alert(`🔓 Login Admin Berhasil! Selamat Datang ${u.toUpperCase()} di Executive Dashboard IT Del.`);
         checkAdminAuth();
       } else {
-        alert('❌ Username atau Password Admin Salah! Mohon periksa kembali.');
+        alert('❌ Akses Ditolak! Akun resmi Admin hanya "admin1" dan "admin2" dengan kata sandi yang benar.');
       }
     });
   }
@@ -457,7 +460,7 @@ function setupAdminEventListeners() {
 
   if (adminLogoutBtn) {
     adminLogoutBtn.addEventListener('click', () => {
-      sessionStorage.removeItem('jastip_admin_authed');
+      sessionStorage.removeItem('jastip_admin_authed_user');
       alert('🔒 Anda telah keluar dari Dashboard Admin.');
       checkAdminAuth();
     });
