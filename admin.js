@@ -194,8 +194,8 @@ function renderAdminDashboard() {
       tr.innerHTML = `
         <td><strong style="color: #0f172a;">👤 ${u.name}</strong></td>
         <td><span style="color: #4f46e5; font-weight: 600;">${u.email}</span></td>
-        <td><span style="color: #059669; font-weight: 600; background: #ecfdf5; padding: 6px 14px; border-radius: 20px; border: 1px solid #a7f3d0;">📱 ${userWa}</span></td>
-        <td style="text-align: center;"><strong style="background: #f1f5f9; padding: 6px 14px; border-radius: 20px; border: 1px solid #e2e8f0;">${userOrders.length} Pesanan</strong></td>
+        <td><span style="color: #059669; font-weight: 600; background: #ecfdf5; padding: 4px 10px; border-radius: 20px; border: 1px solid #a7f3d0; font-size: 0.85rem;">📱 ${userWa}</span></td>
+        <td style="text-align: center;"><strong style="background: #f1f5f9; padding: 4px 10px; border-radius: 20px; border: 1px solid #e2e8f0; font-size: 0.85rem;">${userOrders.length} Pesanan</strong></td>
       `;
       userTbody.appendChild(tr);
     });
@@ -209,16 +209,16 @@ function renderAdminDashboard() {
       const totalCost = p.price_original + p.jastip_fee;
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><img src="${p.image_url}" style="width: 54px; height: 54px; object-fit: cover; border-radius: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);"></td>
-        <td><strong style="color: #0f172a; font-size: 1rem;">${p.title}</strong></td>
-        <td><span class="category-tag ${p.main_category === 'MAKANAN_MINUMAN' ? 'tag-makanan' : 'tag-peralatan'}" style="position: static; display: inline-block;">${p.main_category === 'MAKANAN_MINUMAN' ? '🍕 Makanan' : '📚 Peralatan'}</span></td>
-        <td><strong>${formatRupiah(p.price_original)}</strong></td>
-        <td><span style="color: #64748b; font-weight: 600;">+ ${formatRupiah(p.jastip_fee)}</span></td>
-        <td><strong style="color: #059669; font-size: 1.05rem;">${formatRupiah(totalCost)}</strong></td>
-        <td style="text-align: center;">
-          <div style="display: inline-flex; gap: 0.6rem; justify-content: center;">
-            <button class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.86rem;" onclick="editAdminProduct('${p.id}')">✏️ Edit</button>
-            <button class="btn btn-danger" style="padding: 8px 16px; font-size: 0.86rem;" onclick="deleteAdminProduct('${p.id}')">🗑️ Hapus</button>
+        <td style="width: 60px;"><img src="${p.image_url}" style="width: 46px; height: 46px; object-fit: cover; border-radius: 10px; box-shadow: 0 3px 8px rgba(0,0,0,0.08);"></td>
+        <td><strong style="color: #0f172a; font-size: 0.93rem; white-space: normal; display: block; max-width: 220px; line-height: 1.3;">${p.title}</strong></td>
+        <td><span class="category-tag ${p.main_category === 'MAKANAN_MINUMAN' ? 'tag-makanan' : 'tag-peralatan'}" style="position: static; display: inline-block; padding: 4px 10px; font-size: 0.75rem;">${p.main_category === 'MAKANAN_MINUMAN' ? '🍕 Makanan' : '📚 Peralatan'}</span></td>
+        <td><strong style="font-size: 0.88rem;">${formatRupiah(p.price_original)}</strong></td>
+        <td><span style="color: #64748b; font-weight: 600; font-size: 0.85rem;">+ ${formatRupiah(p.jastip_fee)}</span></td>
+        <td><strong style="color: #059669; font-size: 0.95rem;">${formatRupiah(totalCost)}</strong></td>
+        <td style="text-align: center; width: 140px;">
+          <div style="display: inline-flex; gap: 0.4rem; justify-content: center;">
+            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="editAdminProduct('${p.id}')">✏️ Edit</button>
+            <button class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;" onclick="deleteAdminProduct('${p.id}')">🗑️ Hapus</button>
           </div>
         </td>
       `;
@@ -234,9 +234,9 @@ function renderAdminDashboard() {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td><span class="invoice-badge">${o.order_number}</span></td>
-        <td><strong style="color: #0f172a;">${o.user_name}</strong><br><small style="color: #059669; font-weight: 700; font-size: 0.85rem;">📱 ${o.user_wa}</small></td>
-        <td><span style="font-weight: 700; color: #334155;">${o.product_title}</span></td>
-        <td><strong style="color: #059669; font-size: 1.05rem;">${formatRupiah(o.total_amount)}</strong></td>
+        <td><strong style="color: #0f172a; font-size: 0.9rem;">${o.user_name}</strong><br><small style="color: #059669; font-weight: 700; font-size: 0.8rem;">📱 ${o.user_wa}</small></td>
+        <td><span style="font-weight: 700; color: #334155; font-size: 0.9rem; white-space: normal; display: block; max-width: 180px; line-height: 1.3;">${o.product_title}</span></td>
+        <td><strong style="color: #059669; font-size: 0.95rem;">${formatRupiah(o.total_amount)}</strong></td>
         <td>
           <select class="status-select" onchange="updateOrderStatus('${o.id}', this.value)">
             <option value="PENDING" ${o.status === 'PENDING' ? 'selected' : ''}>⏳ PENDING</option>
@@ -245,9 +245,9 @@ function renderAdminDashboard() {
             <option value="SELESAI" ${o.status === 'SELESAI' ? 'selected' : ''}>✅ SELESAI</option>
           </select>
         </td>
-        <td style="max-width: 240px; font-size: 0.88rem; color: #64748b; white-space: normal; line-height: 1.4;">${o.delivery_notes}</td>
-        <td style="text-align: center;">
-          <button class="btn btn-danger" style="padding: 8px 16px; font-size: 0.86rem;" onclick="deleteAdminOrder('${o.id}')">🗑️ Hapus</button>
+        <td style="max-width: 180px; font-size: 0.84rem; color: #64748b; white-space: normal; line-height: 1.3;">${o.delivery_notes}</td>
+        <td style="text-align: center; width: 90px;">
+          <button class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;" onclick="deleteAdminOrder('${o.id}')">🗑️ Hapus</button>
         </td>
       `;
       orderTbody.appendChild(tr);
