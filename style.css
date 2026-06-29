@@ -270,12 +270,56 @@ body {
   font-size: 0.93rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .pill-btn.active {
   background: linear-gradient(135deg, #4f46e5, #4338ca);
   color: white;
   box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+}
+
+/* World-Class Admin Nav Tabs Styling */
+.admin-tab-nav {
+  display: flex;
+  gap: 0.75rem;
+  background: #ffffff;
+  padding: 8px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+  overflow-x: auto;
+  margin-bottom: 2.2rem;
+}
+
+.admin-tab-btn {
+  padding: 0.85rem 1.6rem;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #475569;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  white-space: nowrap;
+  flex: 1;
+  justify-content: center;
+}
+
+.admin-tab-btn:hover {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.admin-tab-btn.active {
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
+  color: white;
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.35);
+  border-color: transparent;
 }
 
 .search-wrapper {
@@ -640,4 +684,5 @@ footer {
   .category-pills { overflow-x: auto; }
   .search-wrapper { max-width: 100%; min-width: 100%; }
   .admin-header-banner { padding: 1.8rem 1.2rem; text-align: center; }
+  .admin-tab-nav { flex-direction: column; }
 }
