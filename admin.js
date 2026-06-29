@@ -1,343 +1,419 @@
-// Executive Admin Portal Logic & Multi-Admin Authentication
+// Executive Admin Dashboard JS Logic with Realtime Firebase Sync & Live Chat Replier
 let products = JSON.parse(localStorage.getItem('jastip_products')) || INITIAL_PRODUCTS;
 let orders = JSON.parse(localStorage.getItem('jastip_orders')) || INITIAL_ORDERS;
 let registeredUsers = JSON.parse(localStorage.getItem('jastip_registered_users')) || [
   { name: 'Rian Mahasiswa', email: 'rian.student@gmail.com', password: 'password123' }
 ];
-let adminAccounts = INITIAL_ADMINS;
-let currentAdmin = JSON.parse(localStorage.getItem('jastip_current_admin')) || null;
-
-function saveState() {
-  localStorage.setItem('jastip_products', JSON.stringify(products));
-  localStorage.setItem('jastip_orders', JSON.stringify(orders));
-  localStorage.setItem('jastip_current_admin', JSON.stringify(currentAdmin));
-
-  if (typeof db !== 'undefined' && db) {
-    try {
-      db.ref('products').set(products);
-      db.ref('orders').set(orders);
-    } catch (e) {
-      console.warn("Cloud sync warning:", e);
-    }
+let webChats = JSON.parse(localStorage.getItem('jastip_web_chats')) || [
+  {
+    id: 'chat-1',
+    user_name: 'Rian Mahasiswa',
+    messages: [
+      { sender: 'user', text: 'Halo Min! Stok Jus janda hari ini masih ada gak ya?', time: '16.30' },
+      { sender: 'admin', text: 'Halo Ka Rian! Masih ada ya, siap diproses dan diantar!', time: '16.32' }
+    ]
   }
-}
+];
+
+let activeChatId = null;
 
 function formatRupiah(amount) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(amount);
 }
 
 // DOM Elements
-const adminLoginGate = document.getElementById('adminLoginGate');
-const adminMainDashboard = document.getElementById('adminMainDashboard');
-const adminLoginForm = document.getElementById('adminLoginForm');
-const adminInfoLabel = document.getElementById('adminInfoLabel');
+const adminProductsTable = document.getElementById('adminProductsTable');
+const adminOrdersTable = document.getElementById('adminOrdersTable');
+const adminUsersTable = document.getElementById('adminUsersTable');
+const productModal = document.getElementById('productModal');
+const productForm = document.getElementById('productForm');
+const openAddProductBtn = document.getElementById('openAddProductBtn');
 const adminLogoutBtn = document.getElementById('adminLogoutBtn');
-const productFormModal = document.getElementById('productFormModal');
-const adminProdFileInput = document.getElementById('adminProdFileInput');
-const adminProdImgBase64 = document.getElementById('adminProdImgBase64');
-const imgPreviewWrapper = document.getElementById('imgPreviewWrapper');
-const imgPreview = document.getElementById('imgPreview');
 
-// Admin Tabs
-const adminTabOverview = document.getElementById('adminTabOverview');
-const adminTabProducts = document.getElementById('adminTabProducts');
-const adminTabOrders = document.getElementById('adminTabOrders');
-const adminTabUsers = document.getElementById('adminTabUsers');
+// Chat Tab Elements
+const adminChatInboxList = document.getElementById('adminChatInboxList');
+const adminChatMessageThread = document.getElementById('adminChatMessageThread');
+const activeChatUserName = document.getElementById('activeChatUserName');
+const adminReplyChatForm = document.getElementById('adminReplyChatForm');
+const adminReplyInput = document.getElementById('adminReplyInput');
+const adminReplySendBtn = document.getElementById('adminReplySendBtn');
 
-const adminViewOverview = document.getElementById('adminViewOverview');
-const adminViewProducts = document.getElementById('adminViewProducts');
-const adminViewOrders = document.getElementById('adminViewOrders');
-const adminViewUsers = document.getElementById('adminViewUsers');
+// Stat Elements
+const statTotalProducts = document.getElementById('statTotalProducts');
+const statTotalOrders = document.getElementById('statTotalOrders');
+const statPendingOrders = document.getElementById('statPendingOrders');
+const statTotalRevenue = document.getElementById('statTotalRevenue');
 
 document.addEventListener('DOMContentLoaded', () => {
-  updateAdminAuthUI();
+  initRealtimeCloudSync();
+  renderDashboard();
   setupAdminEventListeners();
 });
 
-function updateAdminAuthUI() {
-  if (currentAdmin) {
-    if (adminLoginGate) adminLoginGate.style.display = 'none';
-    if (adminMainDashboard) adminMainDashboard.style.display = 'block';
-    if (adminInfoLabel) {
-      adminInfoLabel.style.display = 'inline-block';
-      adminInfoLabel.textContent = `🔑 ${currentAdmin.name}`;
+function initRealtimeCloudSync() {
+  if (typeof db !== 'undefined' && db) {
+    try {
+      db.ref('products').on('value', (snapshot) => {
+        const cloudData = snapshot.val();
+        if (cloudData && Array.isArray(cloudData)) {
+          products = cloudData;
+          localStorage.setItem('jastip_products', JSON.stringify(products));
+          renderDashboard();
+        }
+      });
+
+      db.ref('orders').on('value', (snapshot) => {
+        const cloudOrders = snapshot.val();
+        if (cloudOrders && Array.isArray(cloudOrders)) {
+          orders = cloudOrders;
+          localStorage.setItem('jastip_orders', JSON.stringify(orders));
+          renderDashboard();
+        }
+      });
+
+      db.ref('chats').on('value', (snapshot) => {
+        const cloudChats = snapshot.val();
+        if (cloudChats && Array.isArray(cloudChats)) {
+          webChats = cloudChats;
+          localStorage.setItem('jastip_web_chats', JSON.stringify(webChats));
+          renderChatInbox();
+        }
+      });
+    } catch (e) {
+      console.warn("Realtime cloud sync fallback:", e);
     }
-    if (adminLogoutBtn) adminLogoutBtn.style.display = 'inline-flex';
-    switchAdminTab('overview');
-    renderAdminDashboard();
-  } else {
-    if (adminLoginGate) adminLoginGate.style.display = 'block';
-    if (adminMainDashboard) adminMainDashboard.style.display = 'none';
-    if (adminInfoLabel) adminInfoLabel.style.display = 'none';
-    if (adminLogoutBtn) adminLogoutBtn.style.display = 'none';
   }
 }
 
-function switchAdminTab(tabName) {
-  const tabs = [adminTabOverview, adminTabProducts, adminTabOrders, adminTabUsers];
-  const views = [adminViewOverview, adminViewProducts, adminViewOrders, adminViewUsers];
+function renderDashboard() {
+  renderStats();
+  renderProductsTable();
+  renderOrdersTable();
+  renderChatInbox();
+  renderUsersTable();
+}
 
-  tabs.forEach(t => t && t.classList.remove('active'));
-  views.forEach(v => v && (v.style.display = 'none'));
+function renderStats() {
+  if (statTotalProducts) statTotalProducts.textContent = products.length;
+  if (statTotalOrders) statTotalOrders.textContent = orders.length;
 
-  if (tabName === 'overview') {
-    if (adminTabOverview) adminTabOverview.classList.add('active');
-    if (adminViewOverview) adminViewOverview.style.display = 'block';
-  } else if (tabName === 'products') {
-    if (adminTabProducts) adminTabProducts.classList.add('active');
-    if (adminViewProducts) adminViewProducts.style.display = 'block';
-  } else if (tabName === 'orders') {
-    if (adminTabOrders) adminTabOrders.classList.add('active');
-    if (adminViewOrders) adminViewOrders.style.display = 'block';
-  } else if (tabName === 'users') {
-    if (adminTabUsers) adminTabUsers.classList.add('active');
-    if (adminViewUsers) adminViewUsers.style.display = 'block';
+  const pendingCount = orders.filter(o => o.status === 'PENDING' || o.status === 'PROSES').length;
+  if (statPendingOrders) statPendingOrders.textContent = pendingCount;
+
+  const totalRev = orders.reduce((acc, curr) => acc + (curr.total_amount || 0), 0);
+  if (statTotalRevenue) statTotalRevenue.textContent = formatRupiah(totalRev);
+}
+
+function renderProductsTable() {
+  if (!adminProductsTable) return;
+  adminProductsTable.innerHTML = '';
+
+  products.forEach(p => {
+    const totalCost = p.price_original + p.jastip_fee;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <img src="${p.image_url}" alt="${p.title}" style="width: 54px; height: 54px; border-radius: 12px; object-fit: cover; border: 1px solid #cbd5e1;">
+      </td>
+      <td>
+        <strong style="font-size: 0.95rem; color: #0f172a;">${p.title}</strong>
+        <span style="display: block; font-size: 0.78rem; color: #64748b;">ID: ${p.id}</span>
+      </td>
+      <td><span class="status-badge" style="background: #f1f5f9; color: #334155; font-size: 0.76rem;">${p.sub_category || p.main_category}</span></td>
+      <td style="font-weight: 600;">${formatRupiah(p.price_original)}</td>
+      <td style="color: #4f46e5; font-weight: 700;">+ ${formatRupiah(p.jastip_fee)}</td>
+      <td style="color: #059669; font-weight: 800;">${formatRupiah(totalCost)}</td>
+      <td style="text-align: center;">
+        <div style="display: flex; gap: 0.4rem; justify-content: center;">
+          <button class="btn btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;" onclick="openEditProductModal('${p.id}')">✏️ Edit</button>
+          <button class="btn btn-danger" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;" onclick="deleteProduct('${p.id}')">🗑️ Hapus</button>
+        </div>
+      </td>
+    `;
+    adminProductsTable.appendChild(tr);
+  });
+}
+
+function renderOrdersTable() {
+  if (!adminOrdersTable) return;
+  adminOrdersTable.innerHTML = '';
+
+  if (orders.length === 0) {
+    adminOrdersTable.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #94a3b8; padding: 2rem;">Belum ada pesanan titipan yang masuk.</td></tr>`;
+    return;
   }
+
+  orders.forEach(o => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="invoice-badge">${o.order_number}</span></td>
+      <td>
+        <strong style="color: #0f172a;">${o.user_name}</strong>
+        <span style="display: block; font-size: 0.76rem; color: #64748b;">${o.user_email || ''}</span>
+      </td>
+      <td style="font-weight: 700; color: #334155;">${o.product_title}</td>
+      <td style="font-weight: 800; color: #059669;">${formatRupiah(o.total_amount)}</td>
+      <td>
+        <a href="https://wa.me/${o.user_wa.replace(/[^0-9]/g,'')}" target="_blank" style="color: #059669; font-weight: 700; text-decoration: none; background: #ecfdf5; padding: 4px 10px; border-radius: 8px; border: 1px solid #a7f3d0; display: inline-flex; align-items: center; gap: 4px;">
+          📱 ${o.user_wa}
+        </a>
+      </td>
+      <td style="max-width: 200px; font-size: 0.84rem; color: #475569;">${o.delivery_notes || '-'}</td>
+      <td>
+        <select class="status-select" onchange="updateOrderStatus('${o.id}', this.value)">
+          <option value="PENDING" ${o.status === 'PENDING' ? 'selected' : ''}>⏳ PENDING</option>
+          <option value="PROSES" ${o.status === 'PROSES' ? 'selected' : ''}>🚴 PROSES DIBELI</option>
+          <option value="SELESAI" ${o.status === 'SELESAI' ? 'selected' : ''}>✅ SELESAI COD</option>
+          <option value="BATAL" ${o.status === 'BATAL' ? 'selected' : ''}>❌ BATAL</option>
+        </select>
+      </td>
+    `;
+    adminOrdersTable.appendChild(tr);
+  });
+}
+
+function renderChatInbox() {
+  if (!adminChatInboxList) return;
+  adminChatInboxList.innerHTML = '';
+
+  if (webChats.length === 0) {
+    adminChatInboxList.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 1rem;">Belum ada percakapan masuk.</div>`;
+    return;
+  }
+
+  webChats.forEach(c => {
+    const lastMsg = c.messages && c.messages.length > 0 ? c.messages[c.messages.length - 1] : { text: 'Belum ada pesan', time: '' };
+    const activeStyle = c.id === activeChatId ? 'border-color: #4f46e5; background: #eff6ff;' : 'border-color: #e2e8f0; background: #f8fafc;';
+    
+    const item = document.createElement('div');
+    item.style.cssText = `padding: 0.85rem; border-radius: 12px; border: 2px solid; cursor: pointer; transition: all 0.2s ease; ${activeStyle}`;
+    item.onclick = () => selectChatThread(c.id);
+    item.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+        <strong style="font-size: 0.92rem; color: #0f172a;">👤 ${c.user_name}</strong>
+        <span style="font-size: 0.75rem; color: #64748b;">${lastMsg.time || ''}</span>
+      </div>
+      <p style="font-size: 0.82rem; color: #475569; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0;">
+        ${lastMsg.sender === 'admin' ? '<strong>Anda:</strong> ' : ''}${lastMsg.text}
+      </p>
+    `;
+    adminChatInboxList.appendChild(item);
+  });
+}
+
+function selectChatThread(chatId) {
+  activeChatId = chatId;
+  renderChatInbox();
+
+  const chat = webChats.find(c => c.id === chatId);
+  if (!chat) return;
+
+  activeChatUserName.textContent = `💬 Obrolan dengan: ${chat.user_name}`;
+  adminReplyInput.disabled = false;
+  adminReplySendBtn.disabled = false;
+
+  renderChatMessageThread(chat);
+}
+
+function renderChatMessageThread(chat) {
+  if (!adminChatMessageThread) return;
+  adminChatMessageThread.innerHTML = '';
+
+  chat.messages.forEach(m => {
+    const msgDiv = document.createElement('div');
+    const isAdmin = m.sender === 'admin';
+    msgDiv.style.cssText = `max-width: 80%; padding: 0.75rem 1rem; border-radius: 14px; font-size: 0.88rem; line-height: 1.45; ${isAdmin ? 'align-self: flex-end; background: #4f46e5; color: white; border-top-right-radius: 2px;' : 'align-self: flex-start; background: #f1f5f9; color: #0f172a; border-top-left-radius: 2px;'}`;
+    msgDiv.innerHTML = `
+      <div>${m.text}</div>
+      <span style="font-size: 0.7rem; display: block; text-align: right; margin-top: 4px; opacity: 0.8;">${m.time || ''}</span>
+    `;
+    adminChatMessageThread.appendChild(msgDiv);
+  });
+
+  adminChatMessageThread.scrollTop = adminChatMessageThread.scrollHeight;
+}
+
+function renderUsersTable() {
+  if (!adminUsersTable) return;
+  adminUsersTable.innerHTML = '';
+
+  registeredUsers.forEach((u, idx) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${idx + 1}</td>
+      <td style="font-weight: 700; color: #0f172a;">👤 ${u.name}</td>
+      <td style="color: #4338ca;">${u.email}</td>
+      <td><span class="status-badge" style="background: #ecfdf5; color: #047857; font-weight: 700;">🟢 Aktif Terdaftar</span></td>
+    `;
+    adminUsersTable.appendChild(tr);
+  });
 }
 
 function setupAdminEventListeners() {
-  if (adminTabOverview) adminTabOverview.addEventListener('click', () => switchAdminTab('overview'));
-  if (adminTabProducts) adminTabProducts.addEventListener('click', () => switchAdminTab('products'));
-  if (adminTabOrders) adminTabOrders.addEventListener('click', () => switchAdminTab('orders'));
-  if (adminTabUsers) adminTabUsers.addEventListener('click', () => switchAdminTab('users'));
+  // Navigation Tabs Switching (5 Tabs)
+  document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(tc => tc.style.display = 'none');
 
-  if (adminLoginForm) {
-    adminLoginForm.addEventListener('submit', (e) => {
+      const targetTab = e.currentTarget.dataset.tab;
+      e.currentTarget.classList.add('active');
+      const targetContent = document.getElementById(`tab-${targetTab}`);
+      if (targetContent) targetContent.style.display = 'block';
+    });
+  });
+
+  // Admin Reply Form Submit Handler
+  if (adminReplyChatForm) {
+    adminReplyChatForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const selectedUsername = document.getElementById('adminAccountSelect').value;
-      const inputPassword = document.getElementById('adminPasswordInput').value;
+      if (!activeChatId) return;
 
-      const foundAdmin = adminAccounts.find(a => a.username === selectedUsername && a.password === inputPassword);
-      if (foundAdmin) {
-        currentAdmin = foundAdmin;
-        saveState();
-        updateAdminAuthUI();
-        alert(`🔓 Login Admin Berhasil!\n\nSelamat datang, ${currentAdmin.name}.`);
-      } else {
-        alert('❌ Kata Sandi Admin Salah! Gunakan password: admin123');
+      const replyText = adminReplyInput.value.trim();
+      if (!replyText) return;
+
+      const chatIndex = webChats.findIndex(c => c.id === activeChatId);
+      if (chatIndex !== -1) {
+        const timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        webChats[chatIndex].messages.push({
+          sender: 'admin',
+          text: replyText,
+          time: timeStr
+        });
+
+        localStorage.setItem('jastip_web_chats', JSON.stringify(webChats));
+        if (typeof db !== 'undefined' && db) {
+          try { db.ref('chats').set(webChats); } catch(err) {}
+        }
+
+        adminReplyInput.value = '';
+        selectChatThread(activeChatId);
       }
     });
   }
 
-  if (adminLogoutBtn) {
-    adminLogoutBtn.addEventListener('click', () => {
-      if (confirm('Keluar dari sesi Admin?')) {
-        currentAdmin = null;
-        saveState();
-        updateAdminAuthUI();
-      }
-    });
-  }
-
-  const addNewProductBtn = document.getElementById('addNewProductBtn');
-  if (addNewProductBtn) {
-    addNewProductBtn.addEventListener('click', () => {
-      document.getElementById('productForm').reset();
-      document.getElementById('adminProdId').value = '';
-      adminProdImgBase64.value = '';
-      imgPreviewWrapper.style.display = 'none';
-      document.getElementById('productModalTitle').textContent = '➕ Tambah Produk Baru';
-      openModal(productFormModal);
-    });
-  }
-
-  if (adminProdFileInput) {
-    adminProdFileInput.addEventListener('change', function(e) {
+  // File Upload Reader Preview
+  const prodImageFile = document.getElementById('prodImageFile');
+  if (prodImageFile) {
+    prodImageFile.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = function(event) {
-          const base64String = event.target.result;
-          adminProdImgBase64.value = base64String;
-          imgPreview.src = base64String;
-          imgPreviewWrapper.style.display = 'flex';
+          document.getElementById('prodImageUrl').value = event.target.result;
+          document.getElementById('imagePreview').src = event.target.result;
+          document.getElementById('imagePreviewContainer').style.display = 'block';
         };
         reader.readAsDataURL(file);
       }
     });
   }
 
-  document.querySelectorAll('.modal-close, .closeModalBtn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      closeModal(productFormModal);
+  if (openAddProductBtn) {
+    openAddProductBtn.addEventListener('click', () => {
+      document.getElementById('editProductId').value = '';
+      productForm.reset();
+      document.getElementById('imagePreviewContainer').style.display = 'none';
+      document.getElementById('productModalTitle').textContent = '➕ Tambah Barang Titipan Baru';
+      openModal(productModal);
     });
+  }
+
+  if (productForm) {
+    productForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const editId = document.getElementById('editProductId').value;
+      const title = document.getElementById('prodTitle').value;
+      const mainCat = document.getElementById('prodCategory').value;
+      const subCat = document.getElementById('prodSubCat').value;
+      const priceOrig = parseInt(document.getElementById('prodPriceOriginal').value) || 0;
+      const fee = parseInt(document.getElementById('prodJastipFee').value) || 0;
+      let imgUrl = document.getElementById('prodImageUrl').value;
+      const desc = document.getElementById('prodDesc').value;
+
+      if (!imgUrl) {
+        imgUrl = mainCat === 'MAKANAN_MINUMAN' ? 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80' : 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80';
+      }
+
+      if (editId) {
+        const idx = products.findIndex(p => p.id === editId);
+        if (idx !== -1) {
+          products[idx] = { ...products[idx], title, main_category: mainCat, sub_category: subCat, price_original: priceOrig, jastip_fee: fee, image_url: imgUrl, description: desc };
+        }
+      } else {
+        const newProd = {
+          id: 'prod-' + Date.now(),
+          title, main_category: mainCat, sub_category: subCat, price_original: priceOrig, jastip_fee: fee, image_url: imgUrl, description: desc,
+          source_store: 'Toko Reseller Kampus', weight: 'Sesuai Kemasan', expiry_shelf_life: 'Garansi Segar'
+        };
+        products.unshift(newProd);
+      }
+
+      localStorage.setItem('jastip_products', JSON.stringify(products));
+      if (typeof db !== 'undefined' && db) {
+        try { db.ref('products').set(products); } catch(err) {}
+      }
+
+      closeModal(productModal);
+      renderDashboard();
+      alert('💾 Katalog Produk Berhasil Disimpan & Tersinkronisasi Cloud!');
+    });
+  }
+
+  document.querySelectorAll('.modal-close, .closeModalBtn').forEach(b => {
+    b.addEventListener('click', () => closeModal(productModal));
   });
 
-  const productForm = document.getElementById('productForm');
-  if (productForm) {
-    productForm.addEventListener('submit', handleAdminProductSubmit);
-  }
-}
-
-function renderAdminDashboard() {
-  if (!currentAdmin) return;
-
-  registeredUsers = JSON.parse(localStorage.getItem('jastip_registered_users')) || registeredUsers;
-  orders = JSON.parse(localStorage.getItem('jastip_orders')) || orders;
-  products = JSON.parse(localStorage.getItem('jastip_products')) || products;
-
-  // Update Stats Widgets
-  document.getElementById('statTotalItems').textContent = products.length + ' Items';
-  document.getElementById('statTotalOrders').textContent = orders.length + ' Orders';
-  document.getElementById('statTotalUsers').textContent = registeredUsers.length + ' Users';
-  const totalRevenue = orders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
-  document.getElementById('statTotalRevenue').textContent = formatRupiah(totalRevenue);
-
-  // Render Registered Users Table
-  const userTbody = document.getElementById('adminUserTableBody');
-  if (userTbody) {
-    userTbody.innerHTML = '';
-    registeredUsers.forEach(u => {
-      const userOrders = orders.filter(o => o.user_email === u.email || o.user_name === u.name);
-      const userWa = userOrders.length > 0 ? userOrders[0].user_wa : '081298765432';
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><strong style="color: #0f172a;">👤 ${u.name}</strong></td>
-        <td><span style="color: #4f46e5; font-weight: 600;">${u.email}</span></td>
-        <td><span style="color: #059669; font-weight: 600; background: #ecfdf5; padding: 4px 10px; border-radius: 20px; border: 1px solid #a7f3d0; font-size: 0.85rem;">📱 ${userWa}</span></td>
-        <td style="text-align: center;"><strong style="background: #f1f5f9; padding: 4px 10px; border-radius: 20px; border: 1px solid #e2e8f0; font-size: 0.85rem;">${userOrders.length} Pesanan</strong></td>
-      `;
-      userTbody.appendChild(tr);
-    });
-  }
-
-  // Render Products Table
-  const prodTbody = document.getElementById('adminProductTableBody');
-  if (prodTbody) {
-    prodTbody.innerHTML = '';
-    products.forEach(p => {
-      const totalCost = p.price_original + p.jastip_fee;
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td style="width: 60px;"><img src="${p.image_url}" style="width: 46px; height: 46px; object-fit: cover; border-radius: 10px; box-shadow: 0 3px 8px rgba(0,0,0,0.08);"></td>
-        <td><strong style="color: #0f172a; font-size: 0.93rem; white-space: normal; display: block; max-width: 220px; line-height: 1.3;">${p.title}</strong></td>
-        <td><span class="category-tag ${p.main_category === 'MAKANAN_MINUMAN' ? 'tag-makanan' : 'tag-peralatan'}" style="position: static; display: inline-block; padding: 4px 10px; font-size: 0.75rem;">${p.main_category === 'MAKANAN_MINUMAN' ? '🍕 Makanan' : '📚 Peralatan'}</span></td>
-        <td><strong style="font-size: 0.88rem;">${formatRupiah(p.price_original)}</strong></td>
-        <td><span style="color: #64748b; font-weight: 600; font-size: 0.85rem;">+ ${formatRupiah(p.jastip_fee)}</span></td>
-        <td><strong style="color: #059669; font-size: 0.95rem;">${formatRupiah(totalCost)}</strong></td>
-        <td style="text-align: center; width: 140px;">
-          <div style="display: inline-flex; gap: 0.4rem; justify-content: center;">
-            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="editAdminProduct('${p.id}')">✏️ Edit</button>
-            <button class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;" onclick="deleteAdminProduct('${p.id}')">🗑️ Hapus</button>
-          </div>
-        </td>
-      `;
-      prodTbody.appendChild(tr);
-    });
-  }
-
-  // Render Orders Table
-  const orderTbody = document.getElementById('adminOrderTableBody');
-  if (orderTbody) {
-    orderTbody.innerHTML = '';
-    orders.forEach(o => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><span class="invoice-badge">${o.order_number}</span></td>
-        <td><strong style="color: #0f172a; font-size: 0.9rem;">${o.user_name}</strong><br><small style="color: #059669; font-weight: 700; font-size: 0.8rem;">📱 ${o.user_wa}</small></td>
-        <td><span style="font-weight: 700; color: #334155; font-size: 0.9rem; white-space: normal; display: block; max-width: 180px; line-height: 1.3;">${o.product_title}</span></td>
-        <td><strong style="color: #059669; font-size: 0.95rem;">${formatRupiah(o.total_amount)}</strong></td>
-        <td>
-          <select class="status-select" onchange="updateOrderStatus('${o.id}', this.value)">
-            <option value="PENDING" ${o.status === 'PENDING' ? 'selected' : ''}>⏳ PENDING</option>
-            <option value="DIBELI" ${o.status === 'DIBELI' ? 'selected' : ''}>🛍️ DIBELI</option>
-            <option value="DIKIRIM_COD" ${o.status === 'DIKIRIM_COD' ? 'selected' : ''}>🚚 DIKIRIM / COD</option>
-            <option value="SELESAI" ${o.status === 'SELESAI' ? 'selected' : ''}>✅ SELESAI</option>
-          </select>
-        </td>
-        <td style="max-width: 180px; font-size: 0.84rem; color: #64748b; white-space: normal; line-height: 1.3;">${o.delivery_notes}</td>
-        <td style="text-align: center; width: 90px;">
-          <button class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;" onclick="deleteAdminOrder('${o.id}')">🗑️ Hapus</button>
-        </td>
-      `;
-      orderTbody.appendChild(tr);
+  if (adminLogoutBtn) {
+    adminLogoutBtn.addEventListener('click', () => {
+      window.location.href = 'index.html';
     });
   }
 }
 
-function handleAdminProductSubmit(e) {
-  e.preventDefault();
-  const id = document.getElementById('adminProdId').value;
-  const title = document.getElementById('adminProdTitle').value;
-  const main_category = document.getElementById('adminProdMainCat').value;
-  const sub_category = document.getElementById('adminProdSubCat').value;
-  const price_original = parseFloat(document.getElementById('adminProdPrice').value);
-  const jastip_fee = parseFloat(document.getElementById('adminProdFee').value);
-  const description = document.getElementById('adminProdDesc').value;
-  
-  let image_url = adminProdImgBase64.value;
-  if (!image_url) {
-    if (id) {
-      const existing = products.find(p => p.id === id);
-      if (existing) image_url = existing.image_url;
-    } else {
-      image_url = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80';
-    }
-  }
+window.openEditProductModal = function(id) {
+  const p = products.find(prod => prod.id === id);
+  if (!p) return;
 
-  if (id) {
-    const index = products.findIndex(p => p.id === id);
-    if (index !== -1) {
-      products[index] = { ...products[index], title, main_category, sub_category, price_original, jastip_fee, image_url, description };
-    }
-  } else {
-    const newProd = {
-      id: 'prod-' + Date.now(),
-      title, main_category, sub_category, price_original, jastip_fee, stock: 10, image_url, description
-    };
-    products.unshift(newProd);
-  }
+  document.getElementById('editProductId').value = p.id;
+  document.getElementById('prodTitle').value = p.title;
+  document.getElementById('prodCategory').value = p.main_category;
+  document.getElementById('prodSubCat').value = p.sub_category || '';
+  document.getElementById('prodPriceOriginal').value = p.price_original;
+  document.getElementById('prodJastipFee').value = p.jastip_fee;
+  document.getElementById('prodImageUrl').value = p.image_url;
+  document.getElementById('prodDesc').value = p.description;
 
-  saveState();
-  closeModal(productFormModal);
-  renderAdminDashboard();
-  alert('💾 Data Produk Berhasil Disimpan!');
-}
+  document.getElementById('imagePreview').src = p.image_url;
+  document.getElementById('imagePreviewContainer').style.display = 'block';
 
-window.editAdminProduct = function(id) {
-  const prod = products.find(p => p.id === id);
-  if (!prod) return;
-
-  document.getElementById('adminProdId').value = prod.id;
-  document.getElementById('adminProdTitle').value = prod.title;
-  document.getElementById('adminProdMainCat').value = prod.main_category;
-  document.getElementById('adminProdSubCat').value = prod.sub_category;
-  document.getElementById('adminProdPrice').value = prod.price_original;
-  document.getElementById('adminProdFee').value = prod.jastip_fee;
-  adminProdImgBase64.value = prod.image_url;
-  document.getElementById('adminProdDesc').value = prod.description;
-
-  imgPreview.src = prod.image_url;
-  imgPreviewWrapper.style.display = 'flex';
-
-  document.getElementById('productModalTitle').textContent = '✏️ Edit Produk';
-  openModal(productFormModal);
+  document.getElementById('productModalTitle').textContent = '✏️ Edit Barang Katalog';
+  openModal(productModal);
 };
 
-window.deleteAdminProduct = function(id) {
-  if (confirm('Hapus produk ini dari katalog?')) {
+window.deleteProduct = function(id) {
+  if (confirm('⚠️ Apakah Anda yakin ingin menghapus barang ini dari katalog?')) {
     products = products.filter(p => p.id !== id);
-    saveState();
-    renderAdminDashboard();
+    localStorage.setItem('jastip_products', JSON.stringify(products));
+    if (typeof db !== 'undefined' && db) {
+      try { db.ref('products').set(products); } catch(err) {}
+    }
+    renderDashboard();
   }
 };
 
-window.updateOrderStatus = function(orderId, newStatus) {
-  const order = orders.find(o => o.id === orderId);
-  if (order) {
-    order.status = newStatus;
-    saveState();
-    alert(`Status Pesanan ${order.order_number} Diperbarui menjadi: ${newStatus}`);
+window.updateOrderStatus = function(id, newStatus) {
+  const idx = orders.findIndex(o => o.id === id);
+  if (idx !== -1) {
+    orders[idx].status = newStatus;
+    localStorage.setItem('jastip_orders', JSON.stringify(orders));
+    if (typeof db !== 'undefined' && db) {
+      try { db.ref('orders').set(orders); } catch(err) {}
+    }
+    renderStats();
+    alert(`✅ Status Pesanan Invoice ${orders[idx].order_number} berhasil diperbarui menjadi ${newStatus}!`);
   }
 };
 
-window.deleteAdminOrder = function(orderId) {
-  if (confirm('Hapus pesanan ini dari riwayat admin?')) {
-    orders = orders.filter(o => o.id !== orderId);
-    saveState();
-    renderAdminDashboard();
-  }
-};
-
-function openModal(modal) { if (modal) modal.classList.add('active'); }
-function closeModal(modal) { if (modal) modal.classList.remove('active'); }
+function openModal(m) { if (m) m.classList.add('active'); }
+function closeModal(m) { if (m) m.classList.remove('active'); }
